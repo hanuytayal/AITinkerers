@@ -1,6 +1,6 @@
 flask==2.3.3
 pandas==2.1.0
-openai==1.7.0
+openai>=1.7.0
 werkzeug==2.3.7
 python-dotenv==1.0.0
 uuid==1.30 
