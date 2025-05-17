@@ -1,0 +1,226 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-8">
+        <!-- Tickets Section -->
+        <div class="card shadow-sm mb-4">
+            <div class="card-header bg-success text-white">
+                <h3 class="mb-0">
+                    <i class="fas fa-ticket-alt me-2"></i>Tickets Created
+                </h3>
+            </div>
+            <div class="card-body">
+                <h5>File: {{ state.current_file }}</h5>
+                {% if state.tickets_created %}
+                    <p>The AI agent automatically created {{ state.tickets_created|length }} tickets for critical issues:</p>
+                    
+                    <div class="tickets-container">
+                        {% for ticket in state.tickets_created %}
+                        <div class="card mb-3 ticket-card">
+                            <div class="card-header d-flex justify-content-between align-items-center">
+                                <span class="fs-5">{{ ticket.id }}</span>
+                                <span class="badge bg-{{ 'danger' if 'P0' in ticket.priority else 'warning' if 'P1' in ticket.priority else 'info' if 'P2' in ticket.priority else 'secondary' }}">
+                                    {{ ticket.priority }}
+                                </span>
+                            </div>
+                            <div class="card-body">
+                                <h5 class="card-title">{{ ticket.title }}</h5>
+                                <p class="card-text">{{ ticket.description }}</p>
+                                
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <h6>Details</h6>
+                                        <ul class="list-group list-group-flush">
+                                            <li class="list-group-item"><strong>Status:</strong> {{ ticket.status }}</li>
+                                            <li class="list-group-item"><strong>Created:</strong> {{ ticket.created_at }}</li>
+                                            <li class="list-group-item"><strong>Service:</strong> {{ ticket.issue.service }}</li>
+                                            <li class="list-group-item"><strong>Count:</strong> {{ ticket.issue.count }} occurrences</li>
+                                        </ul>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <h6>Assignment</h6>
+                                        <div class="card">
+                                            <div class="card-body">
+                                                <h6 class="card-title">{{ ticket.assigned_to.name }}</h6>
+                                                <p class="card-text"><strong>Team:</strong> {{ ticket.assigned_to.team }}</p>
+                                                <p class="card-text"><small class="text-muted">ID: {{ ticket.assigned_to.id }}</small></p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="mt-3">
+                                    <h6>Recommended Action</h6>
+                                    <div class="alert alert-info">
+                                        {{ ticket.recommended_action }}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle me-2"></i>No tickets created. No critical issues were found that occurred 5 or more times.
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+        
+        <!-- Issues Section -->
+        {% if state.issues_found %}
+        <div class="card shadow-sm mb-4">
+            <div class="card-header bg-primary text-white">
+                <h3 class="mb-0">
+                    <i class="fas fa-search me-2"></i>Analysis Results
+                </h3>
+            </div>
+            <div class="card-body">
+                <h5>Critical Issues</h5>
+                <p>The AI agent identified {{ state.issues_found|length }} critical issues that occurred 5 or more times:</p>
+                
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Issue Type</th>
+                                <th>Service</th>
+                                <th>Severity</th>
+                                <th>Count</th>
+                                <th>First Seen</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for issue in state.issues_found %}
+                            <tr>
+                                <td>{{ issue.issue_type }}</td>
+                                <td>{{ issue.service }}</td>
+                                <td>
+                                    <span class="badge bg-{{ 'danger' if issue.severity == 'Critical' else 'warning' if issue.severity == 'High' else 'info' if issue.severity == 'Medium' else 'secondary' }}">
+                                        {{ issue.severity }}
+                                    </span>
+                                </td>
+                                <td>{{ issue.count }}</td>
+                                <td>{{ issue.first_seen }}</td>
+                                <td>{{ issue.description }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+        
+        <div class="mt-3">
+            <a href="{{ url_for('index') }}" class="btn btn-primary">
+                <i class="fas fa-home me-2"></i>Back to Home
+            </a>
+        </div>
+    </div>
+    
+    <div class="col-md-4">
+        <!-- Reasoning Steps -->
+        <div class="card shadow-sm sticky-top mb-4" style="top: 20px">
+            <div class="card-header bg-info text-white">
+                <h4 class="mb-0">
+                    <i class="fas fa-brain me-2"></i>AI Reasoning
+                </h4>
+            </div>
+            <div class="card-body">
+                <div class="list-group reasoning-steps">
+                    {% if state.reasoning_steps %}
+                        {% for step in state.reasoning_steps %}
+                        <div class="list-group-item">
+                            <div class="d-flex w-100 justify-content-between">
+                                <h6 class="mb-1">
+                                    <i class="fas fa-cog me-2"></i>Step {{ loop.index }}
+                                </h6>
+                                <small class="text-muted">{{ step.timestamp }}</small>
+                            </div>
+                            <p class="mb-1">{{ step.content }}</p>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="alert alert-warning">
+                            No reasoning steps available.
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        
+        <!-- Agent Thoughts -->
+        <div class="card shadow-sm sticky-mid" style="margin-top: 20px">
+            <div class="card-header bg-secondary text-white">
+                <h4 class="mb-0">
+                    <i class="fas fa-comment-dots me-2"></i>Agent Thoughts
+                </h4>
+            </div>
+            <div class="card-body">
+                <div class="list-group">
+                    {% for thought in state.agent_thoughts %}
+                    <div class="list-group-item">
+                        <div class="d-flex w-100 justify-content-between">
+                            <h6 class="mb-1">
+                                <i class="fas fa-robot me-2"></i>Thought
+                            </h6>
+                            <small class="text-muted">{{ thought.timestamp }}</small>
+                        </div>
+                        <p class="mb-1">{{ thought.thought }}</p>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    $(document).ready(function() {
+        // Real-time updates for reasoning steps
+        function updateReasoningSteps() {
+            $.getJSON('/api/reasoning', function(data) {
+                var reasoningContainer = $('.reasoning-steps');
+                
+                // Clear existing content
+                reasoningContainer.empty();
+                
+                // Populate with new content
+                if (data && data.length > 0) {
+                    $.each(data, function(index, step) {
+                        var stepHtml = `
+                            <div class="list-group-item">
+                                <div class="d-flex w-100 justify-content-between">
+                                    <h6 class="mb-1">
+                                        <i class="fas fa-cog me-2"></i>Step ${index + 1}
+                                    </h6>
+                                    <small class="text-muted">${step.timestamp}</small>
+                                </div>
+                                <p class="mb-1">${step.content}</p>
+                            </div>
+                        `;
+                        reasoningContainer.append(stepHtml);
+                    });
+                } else {
+                    reasoningContainer.append(`
+                        <div class="alert alert-warning">
+                            No reasoning steps available.
+                        </div>
+                    `);
+                }
+            });
+        }
+        
+        // Initial load of reasoning steps
+        updateReasoningSteps();
+        
+        // Poll for updates every 2 seconds
+        setInterval(updateReasoningSteps, 2000);
+    });
+</script>
+{% endblock %} 

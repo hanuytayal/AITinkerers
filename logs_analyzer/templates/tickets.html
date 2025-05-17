@@ -1,0 +1,98 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-8">
+        <div class="card shadow-sm">
+            <div class="card-header bg-success text-white">
+                <h3 class="mb-0">
+                    <i class="fas fa-ticket-alt me-2"></i>Tickets Created
+                </h3>
+            </div>
+            <div class="card-body">
+                <h5>File: {{ state.current_file }}</h5>
+                <p>The AI agent has created {{ state.tickets_created|length }} tickets for the selected issues:</p>
+                
+                <div class="tickets-container">
+                    {% for ticket in state.tickets_created %}
+                    <div class="card mb-3 ticket-card">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <span class="fs-5">{{ ticket.id }}</span>
+                            <span class="badge bg-{{ 'danger' if 'P0' in ticket.priority else 'warning' if 'P1' in ticket.priority else 'info' if 'P2' in ticket.priority else 'secondary' }}">
+                                {{ ticket.priority }}
+                            </span>
+                        </div>
+                        <div class="card-body">
+                            <h5 class="card-title">{{ ticket.title }}</h5>
+                            <p class="card-text">{{ ticket.description }}</p>
+                            
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <h6>Details</h6>
+                                    <ul class="list-group list-group-flush">
+                                        <li class="list-group-item"><strong>Status:</strong> {{ ticket.status }}</li>
+                                        <li class="list-group-item"><strong>Created:</strong> {{ ticket.created_at }}</li>
+                                        <li class="list-group-item"><strong>Service:</strong> {{ ticket.issue.service }}</li>
+                                    </ul>
+                                </div>
+                                <div class="col-md-6">
+                                    <h6>Assignment</h6>
+                                    <div class="card">
+                                        <div class="card-body">
+                                            <h6 class="card-title">{{ ticket.assigned_to.name }}</h6>
+                                            <p class="card-text"><strong>Team:</strong> {{ ticket.assigned_to.team }}</p>
+                                            <p class="card-text"><small class="text-muted">ID: {{ ticket.assigned_to.id }}</small></p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="mt-3">
+                                <h6>Recommended Action</h6>
+                                <div class="alert alert-info">
+                                    {{ ticket.recommended_action }}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                
+                <div class="mt-3">
+                    <a href="{{ url_for('index') }}" class="btn btn-primary">
+                        <i class="fas fa-home me-2"></i>Back to Home
+                    </a>
+                    <a href="{{ url_for('analyze', filename=state.current_file) }}" class="btn btn-secondary">
+                        <i class="fas fa-search me-2"></i>Back to Analysis
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4">
+        <div class="card shadow-sm sticky-top" style="top: 20px">
+            <div class="card-header bg-info text-white">
+                <h4 class="mb-0">
+                    <i class="fas fa-brain me-2"></i>Agent Thoughts
+                </h4>
+            </div>
+            <div class="card-body">
+                <div class="list-group">
+                    {% for thought in state.agent_thoughts %}
+                    <div class="list-group-item">
+                        <div class="d-flex w-100 justify-content-between">
+                            <h6 class="mb-1">
+                                <i class="fas fa-comment-dots me-2"></i>Thought
+                            </h6>
+                            <small class="text-muted">{{ thought.timestamp }}</small>
+                        </div>
+                        <p class="mb-1">{{ thought.thought }}</p>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

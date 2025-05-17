@@ -1,0 +1,112 @@
+/* Main Styles */
+body {
+    background-color: #f8f9fa;
+}
+
+.card {
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.card-header {
+    font-weight: 500;
+}
+
+/* Ticket Cards */
+.ticket-card {
+    transition: transform 0.2s ease;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+
+.ticket-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 15px rgba(0,0,0,0.1);
+}
+
+/* Agent Thoughts */
+.list-group-item {
+    transition: background-color 0.2s ease;
+}
+
+.list-group-item:hover {
+    background-color: #f8f9fa;
+}
+
+/* Sticky sidebar for agent thoughts */
+.sticky-top {
+    top: 20px;
+    max-height: calc(100vh - 40px);
+    overflow-y: auto;
+}
+
+.sticky-mid {
+    max-height: calc(100vh - 500px);
+    overflow-y: auto;
+}
+
+/* Loader animation for analysis */
+.loader {
+    border: 5px solid #f3f3f3;
+    border-top: 5px solid #3498db;
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+    animation: spin 2s linear infinite;
+    margin: 20px auto;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Badge styles */
+.badge {
+    font-weight: 500;
+    padding: 6px 10px;
+}
+
+/* Reasoning steps styles */
+.reasoning-steps .list-group-item {
+    border-left: 3px solid #3498db;
+    margin-bottom: 8px;
+    position: relative;
+}
+
+.reasoning-steps .list-group-item::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -3px;
+    height: 100%;
+    width: 3px;
+    background-color: #3498db;
+    opacity: 0.7;
+}
+
+.reasoning-steps .list-group-item:nth-child(odd)::before {
+    background-color: #9b59b6;
+}
+
+.reasoning-steps .list-group-item:nth-child(odd) {
+    border-left-color: #9b59b6;
+}
+
+/* Animation for new reasoning steps */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.reasoning-steps .list-group-item:last-child {
+    animation: fadeIn 0.5s ease;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .sticky-top, .sticky-mid {
+        position: relative;
+        max-height: none;
+        overflow-y: visible;
+    }
+} 
