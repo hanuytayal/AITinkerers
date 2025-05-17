@@ -1,0 +1,110 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-8">
+        <div class="card shadow-sm">
+            <div class="card-header bg-primary text-white">
+                <h3 class="mb-0">
+                    <i class="fas fa-search me-2"></i>Analysis Results
+                </h3>
+            </div>
+            <div class="card-body">
+                <h5>File: {{ state.current_file }}</h5>
+                <p>The AI agent has analyzed the log file and identified {{ state.issues_found|length }} issues:</p>
+                
+                <form action="{{ url_for('create_tickets') }}" method="post">
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th style="width: 40px;"><input type="checkbox" id="select-all"></th>
+                                    <th>Issue Type</th>
+                                    <th>Service</th>
+                                    <th>Severity</th>
+                                    <th>Count</th>
+                                    <th>First Seen</th>
+                                    <th>Description</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for issue in state.issues_found %}
+                                <tr>
+                                    <td>
+                                        <input type="checkbox" name="selected_issues" value="{{ loop.index0 }}" id="issue-{{ loop.index0 }}" class="issue-checkbox">
+                                    </td>
+                                    <td>{{ issue.issue_type }}</td>
+                                    <td>{{ issue.service }}</td>
+                                    <td>
+                                        <span class="badge bg-{{ 'danger' if issue.severity == 'Critical' else 'warning' if issue.severity == 'High' else 'info' if issue.severity == 'Medium' else 'secondary' }}">
+                                            {{ issue.severity }}
+                                        </span>
+                                    </td>
+                                    <td>{{ issue.count }}</td>
+                                    <td>{{ issue.first_seen }}</td>
+                                    <td>{{ issue.description }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <div class="mt-3">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-ticket-alt me-2"></i>Create Tickets for Selected Issues
+                        </button>
+                        <a href="{{ url_for('index') }}" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left me-2"></i>Back to Home
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4">
+        <div class="card shadow-sm sticky-top" style="top: 20px">
+            <div class="card-header bg-info text-white">
+                <h4 class="mb-0">
+                    <i class="fas fa-brain me-2"></i>Agent Thoughts
+                </h4>
+            </div>
+            <div class="card-body">
+                <div class="list-group">
+                    {% for thought in state.agent_thoughts %}
+                    <div class="list-group-item">
+                        <div class="d-flex w-100 justify-content-between">
+                            <h6 class="mb-1">
+                                <i class="fas fa-comment-dots me-2"></i>Thought
+                            </h6>
+                            <small class="text-muted">{{ thought.timestamp }}</small>
+                        </div>
+                        <p class="mb-1">{{ thought.thought }}</p>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    $(document).ready(function() {
+        // Handle "Select All" checkbox
+        $('#select-all').change(function() {
+            $('.issue-checkbox').prop('checked', $(this).prop('checked'));
+        });
+        
+        // Update "Select All" if all individual checkboxes are checked/unchecked
+        $('.issue-checkbox').change(function() {
+            if ($('.issue-checkbox:checked').length == $('.issue-checkbox').length) {
+                $('#select-all').prop('checked', true);
+            } else {
+                $('#select-all').prop('checked', false);
+            }
+        });
+    });
+</script>
+{% endblock %} 
