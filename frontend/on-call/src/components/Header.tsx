@@ -34,12 +34,12 @@ const NavItem = styled.div`
 const Header: React.FC = () => {
   return (
     <Container>
-      <Logo>JIRA Clone</Logo>
+      <Logo>Task Manager</Logo>
       <Navigation>
-        <NavItem>Boards</NavItem>
-        <NavItem>Projects</NavItem>
-        <NavItem>Issues</NavItem>
+        <NavItem>Tasks</NavItem>
+        <NavItem>Calendar</NavItem>
         <NavItem>Reports</NavItem>
+        <NavItem>Settings</NavItem>
       </Navigation>
     </Container>
   );

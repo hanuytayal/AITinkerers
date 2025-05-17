@@ -2,8 +2,11 @@ export interface Task {
   id: string;
   title: string;
   description: string;
+  summary: string;
   priority: 'low' | 'medium' | 'high';
-  assignee?: string;
+  status: 'To Do' | 'In Progress' | 'Done';
+  assignee: 'AI' | 'Human' | undefined;
+  dueDate?: string;
 }
 
 export interface Column {

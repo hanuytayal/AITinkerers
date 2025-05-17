@@ -2,7 +2,7 @@ import React from 'react';
 import styled from 'styled-components';
 import './App.css';
 import Header from './components/Header';
-import Board from './components/Board';
+import TaskList from './components/TaskList';
 
 const Container = styled.div`
   display: flex;
@@ -15,7 +15,7 @@ const Content = styled.div`
   overflow: auto;
 `;
 
-const BoardHeader = styled.div`
+const PageHeader = styled.div`
   padding: 20px;
   background-color: #f4f5f7;
   border-bottom: 1px solid #dfe1e6;
@@ -31,10 +31,10 @@ function App() {
     <Container>
       <Header />
       <Content>
-        <BoardHeader>
-          <Title>Development Board</Title>
-        </BoardHeader>
-        <Board />
+        <PageHeader>
+          <Title>Task List</Title>
+        </PageHeader>
+        <TaskList />
       </Content>
     </Container>
   );
