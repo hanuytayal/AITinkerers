@@ -46,7 +46,7 @@ timestamp,service,level,message
 2025-05-17T20:39:59.921897,analytics-service,INFO,Report generation failed
 2025-05-17T20:40:45.921897,user-service,DEBUG,Profile image upload failed
 2025-05-17T20:40:01.921897,notification-service,DEBUG,Push notification queued
-2025-05-17T20:41:36.921897,payment-service,INFO,Fatal OOM error in payment-service
+2025-05-17T20:41:36.921897,payment-service,FATAL,Fatal OOM error in payment-service
 2025-05-17T20:41:39.921897,inventory-service,INFO,Low stock warning
 2025-05-17T20:41:42.921897,auth-service,INFO,Token refreshed
 2025-05-17T20:41:45.921897,inventory-service,ERROR,Inventory updated
@@ -65,7 +65,7 @@ timestamp,service,level,message
 2025-05-17T20:42:24.921897,auth-service,INFO,Token refreshed
 2025-05-17T20:40:19.921897,gateway,DEBUG,Request timeout
 2025-05-17T20:40:20.921897,payment-service,INFO,Invalid card details
-2025-05-17T20:42:33.921897,payment-service,DEBUG,Fatal OOM error in payment-service
+2025-05-17T20:42:33.921897,payment-service,FATAL,Fatal OOM error in payment-service
 2025-05-17T20:40:22.921897,gateway,INFO,Service unavailable
 2025-05-17T20:41:31.921897,analytics-service,ERROR,Data ingestion complete
 2025-05-17T20:40:24.921897,gateway,FATAL,Service unavailable
@@ -95,7 +95,7 @@ timestamp,service,level,message
 2025-05-17T20:40:48.921897,gateway,INFO,Service unavailable
 2025-05-17T20:42:23.921897,notification-service,ERROR,Email sent
 2025-05-17T20:44:00.921897,auth-service,INFO,Token refreshed
-2025-05-17T20:44:03.921897,payment-service,INFO,Fatal OOM error in payment-service
+2025-05-17T20:44:03.921897,payment-service,FATAL,Fatal OOM error in payment-service
 2025-05-17T20:40:52.921897,inventory-service,INFO,Stock sync started
 2025-05-17T20:42:31.921897,payment-service,DEBUG,Payment gateway timeout
 2025-05-17T20:42:33.921897,order-service,INFO,Order placed
@@ -119,11 +119,11 @@ timestamp,service,level,message
 2025-05-17T20:45:06.921897,order-service,INFO,Order placed
 2025-05-17T20:41:13.921897,order-service,INFO,Order placed
 2025-05-17T20:45:12.921897,user-service,INFO,Profile image upload failed
-2025-05-17T20:45:15.921897,payment-service,DEBUG,Fatal OOM error in payment-service
+2025-05-17T20:45:15.921897,payment-service,FATAL,Fatal OOM error in payment-service
 2025-05-17T20:43:17.921897,analytics-service,INFO,Report generation failed
 2025-05-17T20:45:21.921897,user-service,DEBUG,Profile image upload failed
 2025-05-17T20:45:24.921897,gateway,DEBUG,Request routed to payment-service
-2025-05-17T20:45:27.921897,payment-service,INFO,Fatal OOM error in payment-service
+2025-05-17T20:45:27.921897,payment-service,FATAL,Fatal OOM error in payment-service
 2025-05-17T20:43:25.921897,user-service,INFO,User profile updated
 2025-05-17T20:41:21.921897,inventory-service,DEBUG,Inventory updated
 2025-05-17T20:41:22.921897,inventory-service,INFO,Low stock warning
