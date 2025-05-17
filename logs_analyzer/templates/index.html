@@ -1,0 +1,86 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card shadow-sm">
+            <div class="card-header bg-primary text-white">
+                <h3 class="mb-0">
+                    <i class="fas fa-file-upload me-2"></i>Upload Log File
+                </h3>
+            </div>
+            <div class="card-body">
+                <p class="card-text">
+                    Upload a CSV log file to analyze. The AI agent will:
+                </p>
+                <ul class="mb-4">
+                    <li>Analyze logs using advanced reasoning</li>
+                    <li>Identify critical issues that occurred 5 or more times</li>
+                    <li>Automatically create tickets for oncall engineers</li>
+                    <li>Show its reasoning process in real-time</li>
+                </ul>
+                <form action="{{ url_for('upload_file') }}" method="post" enctype="multipart/form-data" class="mt-4">
+                    <div class="mb-3">
+                        <label for="file" class="form-label">Select a log file (CSV format)</label>
+                        <input type="file" class="form-control" id="file" name="file" accept=".csv" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-upload me-2"></i>Upload and Analyze
+                    </button>
+                </form>
+                
+                <div class="alert alert-info mt-4">
+                    <i class="fas fa-info-circle me-2"></i>
+                    <strong>Note:</strong> The system will automatically create tickets only for <strong>FATAL severity issues</strong> that have occurred <strong>5 or more times</strong>.
+                </div>
+            </div>
+        </div>
+
+        {% if state.current_file %}
+        <div class="card mt-4 shadow-sm">
+            <div class="card-header bg-success text-white">
+                <h4 class="mb-0">
+                    <i class="fas fa-check-circle me-2"></i>Current Analysis
+                </h4>
+            </div>
+            <div class="card-body">
+                <p><strong>Current file:</strong> {{ state.current_file }}</p>
+                <p><strong>Critical issues found:</strong> {{ state.issues_found|length }}</p>
+                <p><strong>Tickets automatically created:</strong> {{ state.tickets_created|length }}</p>
+                
+                {% if state.issues_found %}
+                <a href="{{ url_for('analyze', filename=state.current_file) }}" class="btn btn-success">
+                    <i class="fas fa-search me-2"></i>View Results
+                </a>
+                {% endif %}
+            </div>
+        </div>
+        {% endif %}
+        
+        {% if state.agent_thoughts %}
+        <div class="card mt-4 shadow-sm">
+            <div class="card-header bg-info text-white">
+                <h4 class="mb-0">
+                    <i class="fas fa-brain me-2"></i>Agent Thoughts
+                </h4>
+            </div>
+            <div class="card-body">
+                <div class="list-group">
+                    {% for thought in state.agent_thoughts %}
+                    <div class="list-group-item">
+                        <div class="d-flex w-100 justify-content-between">
+                            <h6 class="mb-1">
+                                <i class="fas fa-comment-dots me-2"></i>Thought
+                            </h6>
+                            <small class="text-muted">{{ thought.timestamp }}</small>
+                        </div>
+                        <p class="mb-1">{{ thought.thought }}</p>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %} 
