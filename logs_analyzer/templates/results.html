@@ -49,13 +49,6 @@
                                         </div>
                                     </div>
                                 </div>
-                                
-                                <div class="mt-3">
-                                    <h6>Recommended Action</h6>
-                                    <div class="alert alert-info">
-                                        {{ ticket.recommended_action }}
-                                    </div>
-                                </div>
                             </div>
                         </div>
                         {% endfor %}
@@ -151,30 +144,6 @@
                 </div>
             </div>
         </div>
-        
-        <!-- Agent Thoughts -->
-        <div class="card shadow-sm sticky-mid" style="margin-top: 20px">
-            <div class="card-header bg-secondary text-white">
-                <h4 class="mb-0">
-                    <i class="fas fa-comment-dots me-2"></i>Agent Thoughts
-                </h4>
-            </div>
-            <div class="card-body">
-                <div class="list-group">
-                    {% for thought in state.agent_thoughts %}
-                    <div class="list-group-item">
-                        <div class="d-flex w-100 justify-content-between">
-                            <h6 class="mb-1">
-                                <i class="fas fa-robot me-2"></i>Thought
-                            </h6>
-                            <small class="text-muted">{{ thought.timestamp }}</small>
-                        </div>
-                        <p class="mb-1">{{ thought.thought }}</p>
-                    </div>
-                    {% endfor %}
-                </div>
-            </div>
-        </div>
     </div>
 </div>
 {% endblock %}
@@ -186,32 +155,39 @@
         function updateReasoningSteps() {
             $.getJSON('/api/reasoning', function(data) {
                 var reasoningContainer = $('.reasoning-steps');
+                var currentStepsCount = reasoningContainer.find('.list-group-item').length;
                 
-                // Clear existing content
-                reasoningContainer.empty();
-                
-                // Populate with new content
-                if (data && data.length > 0) {
-                    $.each(data, function(index, step) {
-                        var stepHtml = `
-                            <div class="list-group-item">
-                                <div class="d-flex w-100 justify-content-between">
-                                    <h6 class="mb-1">
-                                        <i class="fas fa-cog me-2"></i>Step ${index + 1}
-                                    </h6>
-                                    <small class="text-muted">${step.timestamp}</small>
+                // Only update if we have new steps
+                if (data && data.length > currentStepsCount) {
+                    // Clear existing content
+                    reasoningContainer.empty();
+                    
+                    // Populate with new content
+                    if (data && data.length > 0) {
+                        $.each(data, function(index, step) {
+                            var stepHtml = `
+                                <div class="list-group-item">
+                                    <div class="d-flex w-100 justify-content-between">
+                                        <h6 class="mb-1">
+                                            <i class="fas fa-cog me-2"></i>Step ${index + 1}
+                                        </h6>
+                                        <small class="text-muted">${step.timestamp}</small>
+                                    </div>
+                                    <p class="mb-1">${step.content}</p>
                                 </div>
-                                <p class="mb-1">${step.content}</p>
+                            `;
+                            reasoningContainer.append(stepHtml);
+                        });
+                        
+                        // Scroll to the bottom to show latest step
+                        reasoningContainer.scrollTop(reasoningContainer[0].scrollHeight);
+                    } else {
+                        reasoningContainer.append(`
+                            <div class="alert alert-warning">
+                                No reasoning steps available.
                             </div>
-                        `;
-                        reasoningContainer.append(stepHtml);
-                    });
-                } else {
-                    reasoningContainer.append(`
-                        <div class="alert alert-warning">
-                            No reasoning steps available.
-                        </div>
-                    `);
+                        `);
+                    }
                 }
             });
         }

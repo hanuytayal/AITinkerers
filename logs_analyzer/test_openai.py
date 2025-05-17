@@ -6,7 +6,8 @@ Simple test script to verify OpenAI API connection
 import os
 import sys
 from dotenv import load_dotenv
-import openai
+from openai import OpenAI
+import json
 
 def test_openai_connection():
     """Test connection to OpenAI API"""
@@ -23,11 +24,11 @@ def test_openai_connection():
         return False
     
     try:
-        # Set API key
-        openai.api_key = api_key
+        # Initialize OpenAI client
+        client = OpenAI(api_key=api_key)
         
         # Simple API call to test connection
-        response = openai.ChatCompletion.create(
+        response = client.chat.completions.create(
             model="gpt-3.5-turbo",
             messages=[
                 {"role": "system", "content": "You are a log analysis assistant."},

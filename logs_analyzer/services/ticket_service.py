@@ -8,6 +8,15 @@ class TicketService:
         """Initialize the ticket service"""
         # In a real implementation, this might connect to a ticketing system API
         self.tickets = []
+        
+        # Add virtual AI oncall agent
+        self.ai_agent = {
+            "id": "ai-oncall-001",
+            "name": "AI Oncall Agent",
+            "team": "Automated Response"
+        }
+        
+        # Regular oncall engineers (kept for reference but not used for assignments)
         self.oncall_engineers = [
             {"id": "eng-001", "name": "Alice Smith", "team": "Backend"},
             {"id": "eng-002", "name": "Bob Johnson", "team": "Infrastructure"},
@@ -26,8 +35,8 @@ class TicketService:
         Returns:
             dict: The created ticket
         """
-        # Determine the appropriate engineer based on the service
-        assigned_engineer = self._assign_engineer(issue['service'])
+        # Always assign to AI oncall agent
+        assigned_engineer = self.ai_agent
         
         # Generate ticket ID
         ticket_id = f"TICKET-{str(uuid.uuid4())[:8]}"
@@ -41,8 +50,7 @@ class TicketService:
             "created_at": datetime.now().isoformat(),
             "assigned_to": assigned_engineer,
             "issue": issue,
-            "priority": self._map_severity_to_priority(issue['severity']),
-            "recommended_action": issue['recommended_action']
+            "priority": self._map_severity_to_priority(issue['severity'])
         }
         
         # Store ticket (in a real system, this would be sent to an API)
@@ -51,31 +59,11 @@ class TicketService:
         return ticket
     
     def _assign_engineer(self, service):
-        """Assign an engineer based on the service"""
-        # Simple mapping of services to teams
-        service_team_map = {
-            "payment-service": "Backend",
-            "auth-service": "Security",
-            "user-service": "Backend",
-            "inventory-service": "Backend",
-            "analytics-service": "Backend",
-            "notification-service": "Frontend",
-            "order-service": "Backend",
-            "gateway": "Infrastructure"
-        }
-        
-        team = service_team_map.get(service, "Infrastructure")
-        
-        # Find engineers on this team
-        team_engineers = [eng for eng in self.oncall_engineers if eng['team'] == team]
-        
-        if team_engineers:
-            # Simple round-robin selection based on the current number of tickets
-            index = len(self.tickets) % len(team_engineers)
-            return team_engineers[index]
-        
-        # Default to the first engineer if no match
-        return self.oncall_engineers[0]
+        """
+        This method is kept for backward compatibility but is no longer used.
+        All tickets are now assigned to the AI oncall agent.
+        """
+        return self.ai_agent
     
     def _map_severity_to_priority(self, severity):
         """Map severity to priority level"""

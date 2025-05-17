@@ -87,14 +87,14 @@ The application now automatically creates tickets for:
 - Issues with FATAL severity
 - That have occurred 5 or more times
 
-No human selection is required - tickets are created immediately after analysis.
+Tickets are created using function calling after the AI completes its reasoning process, ensuring that tickets are only created once the analysis is fully completed.
 
 ## Real-Time Reasoning Display
 
 The application displays the AI's reasoning process in real-time:
 1. Upload a log file
-2. Wait for analysis to complete
-3. View the reasoning steps in the sidebar on the results page
+2. Watch as the AI analyzes the log data step-by-step
+3. Observe as the reasoning completes and tickets are created
 4. The page updates automatically to show new reasoning steps as they happen
 
 ## Troubleshooting

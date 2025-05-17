@@ -16,16 +16,17 @@ app.config['SECRET_KEY'] = 'your-secret-key'  # Change this in production
 # Create upload directory if it doesn't exist
 os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
 
-# Initialize services
-agent = LogAnalysisAgent()
+# Initialize ticket service
 ticket_service = TicketService()
+
+# Initialize agent with ticket service
+agent = LogAnalysisAgent(ticket_service=ticket_service)
 
 # Global state to track analysis results
 analysis_state = {
     'current_file': None,
     'issues_found': [],
     'tickets_created': [],
-    'agent_thoughts': [],
     'reasoning_steps': []
 }
 
@@ -51,7 +52,6 @@ def upload_file():
         analysis_state['current_file'] = filename
         analysis_state['issues_found'] = []
         analysis_state['tickets_created'] = []
-        analysis_state['agent_thoughts'] = []
         analysis_state['reasoning_steps'] = []
         
         return redirect(url_for('analyze', filename=filename))
@@ -62,48 +62,25 @@ def upload_file():
 def analyze(filename):
     filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
     
-    # Record agent thought
-    analysis_state['agent_thoughts'].append({
-        'timestamp': datetime.now().isoformat(),
-        'thought': f"Starting analysis of log file: {filename}"
-    })
-    
     # Read log file
     logs_df = pd.read_csv(filepath)
     
     # Ask the agent to analyze the logs
+    # The agent will identify issues and capture reasoning steps
     issues = agent.analyze_logs(logs_df)
     analysis_state['issues_found'] = issues
     
     # Get reasoning steps from agent
     analysis_state['reasoning_steps'] = agent.get_reasoning_steps()
     
-    # Record agent thought
-    analysis_state['agent_thoughts'].append({
-        'timestamp': datetime.now().isoformat(),
-        'thought': f"Found {len(issues)} critical issues in the logs"
-    })
-    
-    # Automatically create tickets for all critical issues
+    # Now that reasoning is complete, create tickets for the identified issues
     tickets = []
     if issues:
-        analysis_state['agent_thoughts'].append({
-            'timestamp': datetime.now().isoformat(),
-            'thought': f"Automatically creating tickets for {len(issues)} critical issues"
-        })
-        
         for issue in issues:
             ticket = ticket_service.create_ticket(issue)
             tickets.append(ticket)
     
     analysis_state['tickets_created'] = tickets
-    
-    # Record agent thought about tickets created
-    if tickets:
-        analysis_state['agent_thoughts'].append({
-            'timestamp': datetime.now().isoformat(),
-            'thought': f"Created {len(tickets)} tickets for oncall engineers"
-        })
     
     return render_template('results.html', state=analysis_state)
 

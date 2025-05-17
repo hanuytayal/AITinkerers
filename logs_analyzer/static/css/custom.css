@@ -1,0 +1,35 @@
+/* Custom styles for the log analyzer application */
+
+/* Reasoning steps container */
+.reasoning-steps {
+    max-height: 80vh;
+    overflow-y: auto;
+    scroll-behavior: smooth;
+}
+
+/* Highlight for the most recent step */
+.reasoning-steps .list-group-item:last-child {
+    border-left: 3px solid #17a2b8;
+    background-color: rgba(23, 162, 184, 0.05);
+}
+
+/* Ticket cards */
+.ticket-card {
+    transition: transform 0.2s;
+    border-left: 4px solid #198754;
+}
+
+.ticket-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Analysis results table */
+.table-striped tbody tr:nth-of-type(odd) {
+    background-color: rgba(0, 0, 0, 0.02);
+}
+
+/* General page layout */
+.sticky-top {
+    z-index: 1020;
+} 
