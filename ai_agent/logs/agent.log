@@ -1,0 +1,30 @@
+2025-05-17 13:19:48,429 - ai_agent - INFO - Loaded configuration from /Users/hanu/AITinkerers/ai_agent/config/default_config.json
+2025-05-17 13:19:48,429 - ai_agent - INFO - Agent initialized with task ID: task-20250517-131948
+2025-05-17 13:19:48,430 - ai_agent - INFO - Starting task execution
+2025-05-17 13:19:48,434 - ai_agent - INFO - Executing CLI command: echo 'Hello from AI Agent'
+2025-05-17 13:19:48,438 - ai_agent - INFO - Command executed successfully: echo 'Hello from AI Agent'
+2025-05-17 13:19:48,438 - ai_agent - INFO - Executing CLI command: ls -la
+2025-05-17 13:19:48,446 - ai_agent - INFO - Command executed successfully: ls -la
+2025-05-17 13:19:48,447 - ai_agent - INFO - Executing CLI command: python3 --version
+2025-05-17 13:19:48,457 - ai_agent - INFO - Command executed successfully: python3 --version
+2025-05-17 13:19:48,832 - ai_agent - INFO - Making GET request to https://httpbin.org/get
+2025-05-17 13:19:49,270 - ai_agent - INFO - API request successful: GET https://httpbin.org/get (Status: 200)
+2025-05-17 13:19:49,271 - ai_agent - INFO - Making POST request to https://httpbin.org/post
+2025-05-17 13:19:49,866 - ai_agent - INFO - API request successful: POST https://httpbin.org/post (Status: 200)
+2025-05-17 13:19:50,148 - ai_agent - INFO - Performing browser action: navigate
+2025-05-17 13:19:55,023 - ai_agent - INFO - Browser action 'navigate' completed successfully
+2025-05-17 13:19:55,028 - ai_agent - INFO - Performing browser action: screenshot
+2025-05-17 13:19:59,075 - ai_agent - INFO - Browser action 'screenshot' completed successfully
+2025-05-17 13:19:59,080 - ai_agent - INFO - Performing browser action: extract
+2025-05-17 13:20:03,015 - ai_agent - INFO - Browser action 'extract' completed successfully
+2025-05-17 13:20:03,020 - ai_agent - INFO - Performing browser action: input
+2025-05-17 13:20:07,222 - ai_agent - INFO - Browser action 'input' completed successfully
+2025-05-17 13:20:07,228 - ai_agent - INFO - Performing browser action: click
+2025-05-17 13:20:37,526 - ai_agent - ERROR - Exception performing browser action 'click': Page.click: Timeout 30000ms exceeded.
+Call log:
+  - waiting for locator("button[type='submit']")
+
+2025-05-17 13:20:39,532 - ai_agent - INFO - Performing browser action: screenshot
+2025-05-17 13:20:42,955 - ai_agent - INFO - Browser action 'screenshot' completed successfully
+2025-05-17 13:20:42,959 - ai_agent - INFO - Task execution completed
+2025-05-17 13:20:42,960 - ai_agent - INFO - History saved to /Users/hanu/AITinkerers/ai_agent/logs/task-20250517-131948-history.json
