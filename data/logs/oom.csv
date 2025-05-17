@@ -1,0 +1,201 @@
+timestamp,service,level,message
+2025-05-17T20:39:15.921897,gateway,DEBUG,Request routed to payment-service
+2025-05-17T20:39:18.921897,inventory-service,DEBUG,Low stock warning
+2025-05-17T20:39:19.921897,inventory-service,WARN,Warehouse unreachable
+2025-05-17T20:39:24.921897,analytics-service,INFO,Anomaly detected
+2025-05-17T20:39:27.921897,order-service,DEBUG,Order placed
+2025-05-17T20:39:20.921897,auth-service,ERROR,User logout complete
+2025-05-17T20:39:27.921897,inventory-service,INFO,Low stock warning
+2025-05-17T20:39:29.921897,analytics-service,WARN,Data ingestion complete
+2025-05-17T20:39:39.921897,inventory-service,INFO,Inventory updated
+2025-05-17T20:39:42.921897,payment-service,INFO,Payment gateway timeout
+2025-05-17T20:39:35.921897,payment-service,INFO,Payment completed
+2025-05-17T20:39:37.921897,user-service,DEBUG,New user registered
+2025-05-17T20:39:39.921897,user-service,DEBUG,User profile updated
+2025-05-17T20:39:54.921897,inventory-service,INFO,Inventory updated
+2025-05-17T20:39:43.921897,order-service,INFO,Refund issued
+2025-05-17T20:39:30.921897,inventory-service,FATAL,Warehouse unreachable
+2025-05-17T20:39:31.921897,notification-service,DEBUG,Push notification queued
+2025-05-17T20:39:32.921897,analytics-service,DEBUG,Anomaly detected
+2025-05-17T20:39:33.921897,analytics-service,INFO,Anomaly detected
+2025-05-17T20:39:34.921897,analytics-service,WARN,Anomaly detected
+2025-05-17T20:39:35.921897,auth-service,DEBUG,User logout complete
+2025-05-17T20:40:18.921897,analytics-service,INFO,Data pipeline started
+2025-05-17T20:39:59.921897,order-service,INFO,Order canceled
+2025-05-17T20:39:38.921897,user-service,WARN,New user registered
+2025-05-17T20:40:03.921897,gateway,INFO,Rate limit exceeded
+2025-05-17T20:39:40.921897,notification-service,DEBUG,SMS delivery failed
+2025-05-17T20:40:33.921897,gateway,DEBUG,Request routed to payment-service
+2025-05-17T20:39:42.921897,gateway,WARN,Request routed to payment-service
+2025-05-17T20:39:43.921897,payment-service,INFO,Payment gateway timeout
+2025-05-17T20:40:42.921897,user-service,INFO,New user registered
+2025-05-17T20:40:15.921897,analytics-service,INFO,Data ingestion complete
+2025-05-17T20:39:46.921897,payment-service,DEBUG,Payment gateway timeout
+2025-05-17T20:40:51.921897,order-service,INFO,Order shipped
+2025-05-17T20:40:21.921897,user-service,INFO,User profile updated
+2025-05-17T20:40:23.921897,user-service,INFO,Failed to fetch user data
+2025-05-17T20:39:50.921897,payment-service,INFO,Payment gateway timeout
+2025-05-17T20:40:27.921897,auth-service,INFO,Invalid credentials
+2025-05-17T20:40:29.921897,auth-service,ERROR,Invalid credentials
+2025-05-17T20:40:31.921897,gateway,DEBUG,Service unavailable
+2025-05-17T20:39:54.921897,payment-service,DEBUG,Payment initiated
+2025-05-17T20:39:55.921897,analytics-service,INFO,Anomaly detected
+2025-05-17T20:39:56.921897,inventory-service,ERROR,Warehouse unreachable
+2025-05-17T20:39:57.921897,auth-service,INFO,User logout complete
+2025-05-17T20:41:24.921897,order-service,DEBUG,Order placed
+2025-05-17T20:39:59.921897,analytics-service,INFO,Report generation failed
+2025-05-17T20:40:45.921897,user-service,DEBUG,Profile image upload failed
+2025-05-17T20:40:01.921897,notification-service,DEBUG,Push notification queued
+2025-05-17T20:41:36.921897,payment-service,INFO,Fatal OOM error in payment-service
+2025-05-17T20:41:39.921897,inventory-service,INFO,Low stock warning
+2025-05-17T20:41:42.921897,auth-service,INFO,Token refreshed
+2025-05-17T20:41:45.921897,inventory-service,ERROR,Inventory updated
+2025-05-17T20:41:48.921897,order-service,INFO,Order placed
+2025-05-17T20:40:59.921897,payment-service,DEBUG,Payment completed
+2025-05-17T20:41:01.921897,analytics-service,DEBUG,Report generation failed
+2025-05-17T20:41:03.921897,gateway,ERROR,Rate limit exceeded
+2025-05-17T20:40:10.921897,auth-service,DEBUG,Invalid credentials
+2025-05-17T20:40:11.921897,auth-service,INFO,Invalid credentials
+2025-05-17T20:40:12.921897,inventory-service,DEBUG,Warehouse unreachable
+2025-05-17T20:42:09.921897,user-service,WARN,Profile image upload failed
+2025-05-17T20:40:14.921897,payment-service,INFO,Fatal OOM error in payment-service
+2025-05-17T20:40:15.921897,notification-service,DEBUG,Email sent
+2025-05-17T20:42:18.921897,order-service,INFO,Order placed
+2025-05-17T20:42:21.921897,order-service,DEBUG,Order canceled
+2025-05-17T20:42:24.921897,auth-service,INFO,Token refreshed
+2025-05-17T20:40:19.921897,gateway,DEBUG,Request timeout
+2025-05-17T20:40:20.921897,payment-service,INFO,Invalid card details
+2025-05-17T20:42:33.921897,payment-service,DEBUG,Fatal OOM error in payment-service
+2025-05-17T20:40:22.921897,gateway,INFO,Service unavailable
+2025-05-17T20:41:31.921897,analytics-service,ERROR,Data ingestion complete
+2025-05-17T20:40:24.921897,gateway,FATAL,Service unavailable
+2025-05-17T20:40:25.921897,gateway,INFO,Request timeout
+2025-05-17T20:41:37.921897,auth-service,INFO,User logout complete
+2025-05-17T20:40:27.921897,payment-service,DEBUG,Payment gateway timeout
+2025-05-17T20:42:54.921897,analytics-service,DEBUG,Event recorded
+2025-05-17T20:41:43.921897,inventory-service,DEBUG,Stock sync started
+2025-05-17T20:41:45.921897,analytics-service,INFO,Anomaly detected
+2025-05-17T20:41:47.921897,inventory-service,INFO,Inventory updated
+2025-05-17T20:41:49.921897,analytics-service,INFO,Data ingestion complete
+2025-05-17T20:40:33.921897,analytics-service,DEBUG,Event recorded
+2025-05-17T20:40:34.921897,order-service,INFO,Order canceled
+2025-05-17T20:43:15.921897,notification-service,INFO,Email sent
+2025-05-17T20:41:57.921897,inventory-service,INFO,Inventory updated
+2025-05-17T20:40:37.921897,inventory-service,ERROR,Warehouse unreachable
+2025-05-17T20:42:01.921897,analytics-service,DEBUG,Anomaly detected
+2025-05-17T20:40:39.921897,analytics-service,INFO,Data pipeline started
+2025-05-17T20:40:40.921897,user-service,ERROR,Profile image upload failed
+2025-05-17T20:42:07.921897,gateway,INFO,Rate limit exceeded
+2025-05-17T20:42:09.921897,order-service,DEBUG,Refund issued
+2025-05-17T20:42:11.921897,gateway,DEBUG,Rate limit exceeded
+2025-05-17T20:42:13.921897,user-service,DEBUG,Database connection retry
+2025-05-17T20:40:45.921897,payment-service,INFO,Payment gateway timeout
+2025-05-17T20:42:17.921897,auth-service,INFO,User login successful
+2025-05-17T20:40:47.921897,notification-service,INFO,Email sent
+2025-05-17T20:40:48.921897,gateway,INFO,Service unavailable
+2025-05-17T20:42:23.921897,notification-service,ERROR,Email sent
+2025-05-17T20:44:00.921897,auth-service,INFO,Token refreshed
+2025-05-17T20:44:03.921897,payment-service,INFO,Fatal OOM error in payment-service
+2025-05-17T20:40:52.921897,inventory-service,INFO,Stock sync started
+2025-05-17T20:42:31.921897,payment-service,DEBUG,Payment gateway timeout
+2025-05-17T20:42:33.921897,order-service,INFO,Order placed
+2025-05-17T20:44:15.921897,inventory-service,ERROR,Item reserved
+2025-05-17T20:42:37.921897,analytics-service,WARN,Anomaly detected
+2025-05-17T20:40:57.921897,gateway,DEBUG,Request routed to payment-service
+2025-05-17T20:42:41.921897,order-service,WARN,Order placed
+2025-05-17T20:40:59.921897,payment-service,DEBUG,Payment initiated
+2025-05-17T20:42:45.921897,notification-service,DEBUG,SMS delivery failed
+2025-05-17T20:44:33.921897,payment-service,DEBUG,Payment initiated
+2025-05-17T20:41:02.921897,auth-service,INFO,Invalid credentials
+2025-05-17T20:42:51.921897,auth-service,WARN,User login successful
+2025-05-17T20:41:04.921897,notification-service,INFO,Template rendering error
+2025-05-17T20:41:05.921897,user-service,DEBUG,New user registered
+2025-05-17T20:41:06.921897,gateway,ERROR,Service unavailable
+2025-05-17T20:44:51.921897,user-service,INFO,User profile updated
+2025-05-17T20:41:08.921897,analytics-service,ERROR,Data pipeline started
+2025-05-17T20:43:03.921897,order-service,INFO,Order placed
+2025-05-17T20:45:00.921897,gateway,DEBUG,Request timeout
+2025-05-17T20:41:11.921897,user-service,INFO,Profile image upload failed
+2025-05-17T20:45:06.921897,order-service,INFO,Order placed
+2025-05-17T20:41:13.921897,order-service,INFO,Order placed
+2025-05-17T20:45:12.921897,user-service,INFO,Profile image upload failed
+2025-05-17T20:45:15.921897,payment-service,DEBUG,Fatal OOM error in payment-service
+2025-05-17T20:43:17.921897,analytics-service,INFO,Report generation failed
+2025-05-17T20:45:21.921897,user-service,DEBUG,Profile image upload failed
+2025-05-17T20:45:24.921897,gateway,DEBUG,Request routed to payment-service
+2025-05-17T20:45:27.921897,payment-service,INFO,Fatal OOM error in payment-service
+2025-05-17T20:43:25.921897,user-service,INFO,User profile updated
+2025-05-17T20:41:21.921897,inventory-service,DEBUG,Inventory updated
+2025-05-17T20:41:22.921897,inventory-service,INFO,Low stock warning
+2025-05-17T20:43:31.921897,user-service,DEBUG,New user registered
+2025-05-17T20:41:24.921897,analytics-service,WARN,Report generation failed
+2025-05-17T20:41:25.921897,notification-service,DEBUG,Template rendering error
+2025-05-17T20:43:37.921897,user-service,ERROR,New user registered
+2025-05-17T20:45:51.921897,inventory-service,WARN,Item reserved
+2025-05-17T20:41:28.921897,order-service,DEBUG,Order canceled
+2025-05-17T20:41:29.921897,inventory-service,ERROR,Inventory updated
+2025-05-17T20:41:30.921897,user-service,INFO,Failed to fetch user data
+2025-05-17T20:43:47.921897,inventory-service,INFO,Inventory updated
+2025-05-17T20:43:49.921897,gateway,INFO,Service unavailable
+2025-05-17T20:43:51.921897,inventory-service,WARN,Low stock warning
+2025-05-17T20:43:53.921897,auth-service,ERROR,User login successful
+2025-05-17T20:46:15.921897,analytics-service,ERROR,Anomaly detected
+2025-05-17T20:43:57.921897,user-service,DEBUG,Profile image upload failed
+2025-05-17T20:43:59.921897,analytics-service,DEBUG,Data pipeline started
+2025-05-17T20:46:24.921897,order-service,DEBUG,Order placed
+2025-05-17T20:46:27.921897,analytics-service,INFO,Report generation failed
+2025-05-17T20:44:05.921897,user-service,INFO,Database connection retry
+2025-05-17T20:41:41.921897,inventory-service,ERROR,Inventory updated
+2025-05-17T20:46:36.921897,notification-service,DEBUG,Webhook triggered
+2025-05-17T20:41:43.921897,notification-service,INFO,Template rendering error
+2025-05-17T20:44:13.921897,user-service,DEBUG,User profile updated
+2025-05-17T20:41:45.921897,auth-service,WARN,Session expired
+2025-05-17T20:46:48.921897,order-service,WARN,Order shipped
+2025-05-17T20:46:51.921897,auth-service,INFO,Session expired
+2025-05-17T20:44:21.921897,payment-service,INFO,Payment gateway timeout
+2025-05-17T20:44:23.921897,analytics-service,WARN,Report generation failed
+2025-05-17T20:44:25.921897,payment-service,FATAL,Payment initiated
+2025-05-17T20:41:51.921897,auth-service,WARN,Invalid credentials
+2025-05-17T20:47:06.921897,user-service,INFO,Database connection retry
+2025-05-17T20:41:53.921897,notification-service,DEBUG,Template rendering error
+2025-05-17T20:44:33.921897,notification-service,FATAL,SMS delivery failed
+2025-05-17T20:41:55.921897,user-service,INFO,Failed to fetch user data
+2025-05-17T20:47:18.921897,user-service,DEBUG,New user registered
+2025-05-17T20:44:39.921897,order-service,DEBUG,Refund issued
+2025-05-17T20:44:41.921897,notification-service,DEBUG,Push notification queued
+2025-05-17T20:44:43.921897,user-service,INFO,Failed to fetch user data
+2025-05-17T20:42:00.921897,analytics-service,INFO,Data ingestion complete
+2025-05-17T20:47:33.921897,gateway,INFO,Rate limit exceeded
+2025-05-17T20:47:36.921897,order-service,INFO,Order shipped
+2025-05-17T20:44:51.921897,inventory-service,INFO,Warehouse unreachable
+2025-05-17T20:42:04.921897,auth-service,INFO,Token refreshed
+2025-05-17T20:47:45.921897,notification-service,DEBUG,Template rendering error
+2025-05-17T20:42:06.921897,notification-service,DEBUG,Template rendering error
+2025-05-17T20:44:59.921897,auth-service,DEBUG,Session expired
+2025-05-17T20:42:08.921897,order-service,INFO,Order shipped
+2025-05-17T20:47:57.921897,user-service,DEBUG,User profile updated
+2025-05-17T20:48:00.921897,payment-service,INFO,Payment gateway timeout
+2025-05-17T20:45:07.921897,notification-service,INFO,Template rendering error
+2025-05-17T20:48:06.921897,user-service,WARN,Database connection retry
+2025-05-17T20:48:09.921897,inventory-service,WARN,Item reserved
+2025-05-17T20:45:13.921897,user-service,DEBUG,Database connection retry
+2025-05-17T20:42:15.921897,auth-service,INFO,Token refreshed
+2025-05-17T20:42:16.921897,user-service,INFO,Profile image upload failed
+2025-05-17T20:48:21.921897,payment-service,DEBUG,Invalid card details
+2025-05-17T20:48:24.921897,user-service,INFO,Failed to fetch user data
+2025-05-17T20:42:19.921897,payment-service,INFO,Payment completed
+2025-05-17T20:48:30.921897,order-service,DEBUG,Order placed
+2025-05-17T20:48:33.921897,order-service,INFO,Order validation error
+2025-05-17T20:48:36.921897,inventory-service,INFO,Item reserved
+2025-05-17T20:45:31.921897,payment-service,INFO,Payment completed
+2025-05-17T20:45:33.921897,notification-service,FATAL,Webhook triggered
+2025-05-17T20:48:45.921897,notification-service,INFO,Webhook triggered
+2025-05-17T20:45:37.921897,order-service,DEBUG,Order placed
+2025-05-17T20:42:27.921897,inventory-service,INFO,Stock sync started
+2025-05-17T20:45:41.921897,analytics-service,INFO,Data pipeline started
+2025-05-17T20:45:43.921897,notification-service,INFO,Template rendering error
+2025-05-17T20:45:45.921897,notification-service,WARN,Template rendering error
+2025-05-17T20:45:47.921897,analytics-service,INFO,Data pipeline started
+2025-05-17T20:45:49.921897,analytics-service,DEBUG,Data pipeline started
+2025-05-17T20:45:51.921897,auth-service,WARN,Session expired
+2025-05-17T20:49:12.921897,analytics-service,INFO,Data pipeline started
