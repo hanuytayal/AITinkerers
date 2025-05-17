@@ -1,25 +1,42 @@
 import React from 'react';
-import logo from './logo.svg';
+import styled from 'styled-components';
 import './App.css';
+import Header from './components/Header';
+import Board from './components/Board';
+
+const Container = styled.div`
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+`;
+
+const Content = styled.div`
+  flex-grow: 1;
+  overflow: auto;
+`;
+
+const BoardHeader = styled.div`
+  padding: 20px;
+  background-color: #f4f5f7;
+  border-bottom: 1px solid #dfe1e6;
+`;
+
+const Title = styled.h1`
+  margin: 0;
+  font-size: 24px;
+`;
 
 function App() {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <Container>
+      <Header />
+      <Content>
+        <BoardHeader>
+          <Title>Development Board</Title>
+        </BoardHeader>
+        <Board />
+      </Content>
+    </Container>
   );
 }
 
