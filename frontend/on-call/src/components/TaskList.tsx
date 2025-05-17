@@ -94,6 +94,24 @@ const Assignee = styled.span<{ assignee: 'AI' | 'Human' | undefined }>`
     props.assignee === 'Human' ? '#0065b3' : '#42526e'};
 `;
 
+const LinkCell = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+`;
+
+const LinkIndicator = styled.div`
+  font-size: 12px;
+  color: #0052cc;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+`;
+
+const LinkIcon = styled.span`
+  font-size: 14px;
+`;
+
 const formatDate = (dateString?: string) => {
   if (!dateString) return '-';
   const date = new Date(dateString);
@@ -120,7 +138,7 @@ const TaskList: React.FC = () => {
         <TableHead>
           <HeaderRow>
             <TableHeader>Title</TableHeader>
-            <TableHeader>Summary</TableHeader>
+            <TableHeader>Knowledge Links</TableHeader>
             <TableHeader>Status</TableHeader>
             <TableHeader>Assignee</TableHeader>
             <TableHeader>Due Date</TableHeader>
@@ -131,7 +149,16 @@ const TaskList: React.FC = () => {
           {tasks.map(task => (
             <TableRow key={task.id} onClick={() => handleTaskClick(task)}>
               <TableCell>{task.title}</TableCell>
-              <TableCell>{task.summary}</TableCell>
+              <TableCell>
+                <LinkCell>
+                  {task.knowledgeLinks.map((link, index) => (
+                    <LinkIndicator key={index}>
+                      <LinkIcon>🔗</LinkIcon>
+                      Link {index + 1}
+                    </LinkIndicator>
+                  ))}
+                </LinkCell>
+              </TableCell>
               <TableCell>
                 <Status status={task.status}>{task.status}</Status>
               </TableCell>

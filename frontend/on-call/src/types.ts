@@ -2,7 +2,7 @@ export interface Task {
   id: string;
   title: string;
   description: string;
-  summary: string;
+  knowledgeLinks: string[];
   priority: 'low' | 'medium' | 'high';
   status: 'To Do' | 'In Progress' | 'Done';
   assignee: 'AI' | 'Human' | undefined;

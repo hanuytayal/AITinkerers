@@ -5,7 +5,10 @@ export const initialData: Board = {
     'task-1': { 
       id: 'task-1', 
       title: 'Create login page', 
-      summary: 'Authentication form for users',
+      knowledgeLinks: [
+        'https://reactjs.org/docs/hooks-reference.html',
+        'https://reactrouter.com/docs/en/v6/getting-started/overview'
+      ],
       description: 'Implement authentication form with email and password fields, validation, and error handling', 
       priority: 'high',
       status: 'To Do',
@@ -15,7 +18,10 @@ export const initialData: Board = {
     'task-2': { 
       id: 'task-2', 
       title: 'Design dashboard', 
-      summary: 'Main dashboard layout',
+      knowledgeLinks: [
+        'https://material-ui.com/components/grid/',
+        'https://www.figma.com/resource-library/dashboard-ui-kit/'
+      ],
       description: 'Create mockups for main dashboard with user metrics, recent activity, and navigation', 
       priority: 'medium',
       status: 'To Do',
@@ -25,7 +31,10 @@ export const initialData: Board = {
     'task-3': { 
       id: 'task-3', 
       title: 'API integration', 
-      summary: 'Connect frontend with backend',
+      knowledgeLinks: [
+        'https://axios-http.com/docs/intro',
+        'https://tanstack.com/query/latest/docs/react/overview'
+      ],
       description: 'Connect frontend to backend services using REST API endpoints', 
       priority: 'high',
       status: 'In Progress',
@@ -35,7 +44,10 @@ export const initialData: Board = {
     'task-4': { 
       id: 'task-4', 
       title: 'Write tests', 
-      summary: 'Unit testing for components',
+      knowledgeLinks: [
+        'https://jestjs.io/docs/getting-started',
+        'https://testing-library.com/docs/react-testing-library/intro/'
+      ],
       description: 'Create unit tests for all React components to ensure proper functionality', 
       priority: 'medium',
       status: 'In Progress',
@@ -45,7 +57,10 @@ export const initialData: Board = {
     'task-5': { 
       id: 'task-5', 
       title: 'Optimize performance', 
-      summary: 'Improve app loading times',
+      knowledgeLinks: [
+        'https://web.dev/articles/code-splitting-suspense',
+        'https://reactjs.org/docs/optimizing-performance.html'
+      ],
       description: 'Improve loading times by implementing lazy loading and code splitting', 
       priority: 'low',
       status: 'Done',

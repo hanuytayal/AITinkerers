@@ -145,6 +145,38 @@ const Assignee = styled.span<{ assignee: 'AI' | 'Human' | undefined }>`
     props.assignee === 'Human' ? '#0065b3' : '#42526e'};
 `;
 
+const LinkList = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+`;
+
+const LinkItem = styled.a`
+  color: #0052cc;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 16px;
+  padding: 6px 10px;
+  border-radius: 4px;
+  background-color: #f4f5f7;
+  transition: background-color 0.2s ease;
+  
+  &:hover {
+    background-color: #deebff;
+    text-decoration: underline;
+  }
+
+  &:visited {
+    color: #0747a6;
+  }
+`;
+
+const LinkIcon = styled.span`
+  font-size: 18px;
+`;
+
 const formatDate = (dateString?: string) => {
   if (!dateString) return '-';
   const date = new Date(dateString);
@@ -172,8 +204,15 @@ const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ task, onClose }) => {
             <DetailContent>{task.description}</DetailContent>
           </DetailSection>
           <DetailSection>
-            <DetailLabel>Summary</DetailLabel>
-            <DetailContent>{task.summary}</DetailContent>
+            <DetailLabel>Knowledge Links</DetailLabel>
+            <LinkList>
+              {task.knowledgeLinks.map((link, index) => (
+                <LinkItem key={index} href={link} target="_blank" rel="noopener noreferrer">
+                  <LinkIcon>🔗</LinkIcon>
+                  {link}
+                </LinkItem>
+              ))}
+            </LinkList>
           </DetailSection>
         </ModalBody>
         <MetaSection>
