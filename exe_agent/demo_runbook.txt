@@ -1,0 +1,23 @@
+Check AWS Console Login:
+    Go to the AWS Management Console login page.
+    ACTION: go_to url=https://signin.aws.amazon.com/console
+
+Check Azure Portal Login:
+    Go to the Azure Portal login page.
+    ACTION: go_to url=https://portal.azure.com/
+
+Check AWS Service Health:
+    Go to the AWS Service Health Dashboard.
+    ACTION: go_to url=https://health.aws.amazon.com/health/home
+
+Check Azure Status:
+    Go to the Azure Status page.
+    ACTION: go_to url=https://status.azure.com/en-us/status
+
+Run AWS CLI version:
+    Run a CLI command to check the AWS CLI version.
+    ACTION: cli command="aws --version"
+
+Run Azure CLI version:
+    Run a CLI command to check the Azure CLI version.
+    ACTION: cli command="az --version"

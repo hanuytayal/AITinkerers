@@ -28,11 +28,6 @@
                         <i class="fas fa-upload me-2"></i>Upload and Analyze
                     </button>
                 </form>
-                
-                <div class="alert alert-info mt-4">
-                    <i class="fas fa-info-circle me-2"></i>
-                    <strong>Note:</strong> The system will automatically create tickets only for <strong>FATAL severity issues</strong> that have occurred <strong>5 or more times</strong>.
-                </div>
             </div>
         </div>
 
@@ -53,31 +48,6 @@
                     <i class="fas fa-search me-2"></i>View Results
                 </a>
                 {% endif %}
-            </div>
-        </div>
-        {% endif %}
-        
-        {% if state.agent_thoughts %}
-        <div class="card mt-4 shadow-sm">
-            <div class="card-header bg-info text-white">
-                <h4 class="mb-0">
-                    <i class="fas fa-brain me-2"></i>Agent Thoughts
-                </h4>
-            </div>
-            <div class="card-body">
-                <div class="list-group">
-                    {% for thought in state.agent_thoughts %}
-                    <div class="list-group-item">
-                        <div class="d-flex w-100 justify-content-between">
-                            <h6 class="mb-1">
-                                <i class="fas fa-comment-dots me-2"></i>Thought
-                            </h6>
-                            <small class="text-muted">{{ thought.timestamp }}</small>
-                        </div>
-                        <p class="mb-1">{{ thought.thought }}</p>
-                    </div>
-                    {% endfor %}
-                </div>
             </div>
         </div>
         {% endif %}

@@ -17,9 +17,10 @@ The application uses OpenAI's reasoning model to:
 
 1. Analyze log files to identify critical issues
 2. Filter for FATAL severity issues that occurred at least 5 times
-3. Automatically create tickets for these issues 
-4. Assign tickets to appropriate oncall engineers based on the service
-5. Show the AI's reasoning process as it happens
+3. Complete the reasoning process with detailed step-by-step analysis 
+4. Use function calling to create tickets only after reasoning is complete
+5. Assign tickets to appropriate oncall engineers based on the service
+6. Show the AI's reasoning process in real-time
 
 ## Installation
 
