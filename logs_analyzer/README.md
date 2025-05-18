@@ -90,7 +90,7 @@ timestamp,service,level,message
 
 ### AI Reasoning Model
 
-The application uses OpenAI's reasoning model (`o1-mini`) for:
+The application uses OpenAI's reasoning model (`o4-mini`) for:
 - Step-by-step analysis of log patterns
 - Identification of critical issues
 - Determination of issue severity and impact
