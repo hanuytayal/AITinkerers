@@ -44,6 +44,20 @@
         .list-group-item {
             animation: fadeIn 0.3s ease-in-out;
         }
+
+        /* Styles for ticket status */
+        .ticket-status {
+            padding: 0.2em 0.6em;
+            border-radius: 0.25rem;
+            font-weight: bold;
+            color: white;
+        }
+        .status-open {
+            background-color: #dc3545; /* Bootstrap danger red */
+        }
+        .status-resolved {
+            background-color: #198754; /* Bootstrap success green */
+        }
     </style>
     
     {% block head %}{% endblock %}

@@ -288,9 +288,10 @@
         function createTicketCardElement(ticket) {
             const cardId = `ticket-card-${ticket.id}`;
             const priorityBadgeClass = getPriorityBadgeClass(ticket.priority);
+            const statusClass = ticket.status === 'Open' ? 'status-open' : ticket.status === 'Resolved' ? 'status-resolved' : '';
             
             const cardHtml = `
-                <div class="card mb-3 ticket-card" id="${cardId}">
+                <div class="card mb-3 ticket-card ${ticket.status === 'Resolved' ? 'border-success' : ''}" id="${cardId}">
                     <div class="card-header d-flex justify-content-between align-items-center">
                         <span class="fs-5">${ticket.id}</span>
                         <span class="badge ${priorityBadgeClass}">${ticket.priority}</span>
@@ -302,7 +303,7 @@
                             <div class="col-md-6">
                                 <h6>Details</h6>
                                 <ul class="list-group list-group-flush">
-                                    <li class="list-group-item"><strong>Status:</strong> <span class="ticket-status">${ticket.status}</span></li>
+                                    <li class="list-group-item"><strong>Status:</strong> <span class="ticket-status ${statusClass}">${ticket.status}</span></li>
                                     <li class="list-group-item"><strong>Created:</strong> <span class="ticket-created-at">${new Date(ticket.created_at).toLocaleString()}</span></li>
                                     <li class="list-group-item"><strong>Service:</strong> <span class="ticket-service">${ticket.issue ? ticket.issue.service : 'N/A'}</span></li>
                                     <li class="list-group-item"><strong>Count:</strong> <span class="ticket-issue-count">${ticket.issue ? ticket.issue.count : 'N/A'}</span> occurrences</li>
@@ -334,8 +335,12 @@
         function updateTicketCardElement(ticketCard, ticket) {
             // Update status
             const statusSpan = ticketCard.find('.ticket-status');
-            if (statusSpan.text() !== ticket.status) {
+            const newStatusClass = ticket.status === 'Open' ? 'status-open' : ticket.status === 'Resolved' ? 'status-resolved' : '';
+            
+            if (!statusSpan.hasClass(newStatusClass) || statusSpan.text() !== ticket.status) {
                 statusSpan.text(ticket.status);
+                statusSpan.removeClass('status-open status-resolved').addClass(newStatusClass);
+                
                 if (ticket.status === 'Resolved') {
                     ticketCard.addClass('border-success');
                 } else {
