@@ -168,6 +168,7 @@
         var ticketsSection = $('.card-body').first();
         var lastTicketCount = initialState.tickets_created ? initialState.tickets_created.length : 0;
         var renderedStepIds = new Set();
+        var hasReceivedSummary = false; // Track if a summary has been received
 
         // Function to add a new reasoning step to the UI (deduplicated)
         function addReasoningStep(step) {
@@ -179,6 +180,13 @@
             var stepIcon = '';
             var stepTitle = `Step ${index}`;
             var contentClass = '';
+            
+            // If this is the first summary, remove the spinner from any "Analyzing logs..." message
+            if (step.type === 'summary' && !hasReceivedSummary) {
+                hasReceivedSummary = true;
+                $('.analyzing-logs-spinner').hide();
+            }
+            
             if (step.type === 'summary') {
                 stepTypeClass = 'bg-light border-primary';
                 stepIcon = '<i class="fas fa-lightbulb me-2 text-primary"></i>';
@@ -199,6 +207,13 @@
             } else {
                 stepIcon = '<i class="fas fa-cog me-2"></i>';
             }
+            
+            // Add spinner for "Analyzing logs..." message
+            var content = step.content_html !== undefined ? step.content_html : step.content;
+            if (content === "Analyzing logs...") {
+                content += ' <span class="analyzing-logs-spinner"><i class="fas fa-spinner fa-spin"></i></span>';
+            }
+            
             var stepHtml = `
                 <div class="list-group-item ${stepTypeClass}">
                     <div class="d-flex w-100 justify-content-between">
@@ -207,7 +222,7 @@
                         </h6>
                         <small class="text-muted">${step.timestamp}</small>
                     </div>
-                    <p class="mb-1 ${contentClass}">${step.content_html !== undefined ? step.content_html : step.content}</p>
+                    <p class="mb-1 ${contentClass}">${content}</p>
                 </div>
             `;
             reasoningContainer.append(stepHtml);
@@ -217,6 +232,10 @@
         // Initial load of existing reasoning steps (deduplicated)
         if (initialState.reasoning_steps && initialState.reasoning_steps.length > 0) {
             reasoningContainer.empty();
+            
+            // Check if initial state already has a summary step
+            hasReceivedSummary = initialState.reasoning_steps.some(step => step.type === 'summary');
+            
             initialState.reasoning_steps.forEach(function(step) {
                 addReasoningStep(step);
             });
