@@ -54,9 +54,10 @@ class BrowserUseAgent:
             except Exception as e2:
                 raise Exception(f"Failed to initialize Chrome driver: {str(e2)}")
 
-    def go_to(self, url):
+    def go_to(self, url, driver=None):
         print(f"[Browser] Navigating to: {url}")
-        driver = self.get_new_driver()
+        if driver is None:
+            driver = self.get_new_driver()
         try:
             driver.get(url)
             self.current_url = url
@@ -84,15 +85,15 @@ class BrowserUseAgent:
             driver.quit()
             raise
 
-    def get_text(self, selector):
+    def get_text(self, selector, driver=None):
         print(f"[Browser] Getting text from selector: {selector}")
-        driver = self.get_new_driver()
-        try:
+        if driver is None:
+            driver = self.get_new_driver()
             driver.get(self.current_url)
+        try:
             element = driver.find_element(By.CSS_SELECTOR, selector)
             text = element.text
             print(f"[Browser] Text found: {text[:200]}{'...' if len(text) > 200 else ''}")
-            driver.quit()
             return text
         except Exception as e:
             print(f"Error getting text: {str(e)}")
@@ -153,23 +154,25 @@ class BrowserUseAgent:
     def run_runbook(self, runbook_path):
         print(f"[Runbook] Executing runbook: {runbook_path}")
         current_driver = None
+        browser_opened = False
         try:
             with open(runbook_path, 'r') as f:
                 lines = f.readlines()
-                
             current_step = None
-            for line in lines:
+            for idx, line in enumerate(lines):
                 line = line.strip('\n')
                 if not line.strip():
                     continue
-                    
                 if not line.startswith('ACTION:') and not line.startswith('    ACTION:') and not line.startswith(' '):
                     current_step = line.strip(':')
                     print(f"\n=== Step: {current_step} ===")
-                    if current_driver:
+                    # Close browser at the end of a web step
+                    if browser_opened and current_driver:
                         current_driver.quit()
                         current_driver = None
-                        
+                        browser_opened = False
+                    # Add sleep to allow demo viewers to see the step
+                    time.sleep(2)
                 elif 'ACTION:' in line:
                     action_line = line.split('ACTION:')[1].strip()
                     parts = action_line.split()
@@ -180,41 +183,43 @@ class BrowserUseAgent:
                             k, v = p.split('=', 1)
                             v = v.strip('"')
                             params[k] = v
-                            
                     try:
                         if action == 'go_to':
-                            if current_driver:
-                                current_driver.quit()
-                            current_driver = self.go_to(params['url'])
-                            
-                        elif action == 'search':
-                            if current_driver:
-                                current_driver.quit()
-                            current_driver = self.search(params['query'], params['search_box_selector'])
-                            
+                            if not browser_opened:
+                                current_driver = self.go_to(params['url'])
+                                browser_opened = True
+                            else:
+                                current_driver.get(params['url'])
+                                self.current_url = params['url']
+                            time.sleep(2)
                         elif action == 'get_text':
-                            text = self.get_text(params['selector'])
+                            text = self.get_text(params['selector'], current_driver)
                             print(f"[Runbook] Text from {params['selector']}:\n{text}\n")
-                            
+                            time.sleep(2)
                         elif action == 'screenshot':
                             self.screenshot(params.get('name_prefix', 'screenshot'), current_driver)
-                            
-                        elif action == 'cli':
-                            self.run_cli(params['command'])
-                            
-                        elif action == 'api':
-                            method = params.get('method', 'get')
-                            url = params['url']
-                            self.call_api(method, url)
-                            
+                            time.sleep(2)
+                        else:
+                            if browser_opened and current_driver:
+                                current_driver.quit()
+                                current_driver = None
+                                browser_opened = False
+                            if action == 'cli':
+                                self.run_cli(params['command'])
+                                time.sleep(2)
+                            elif action == 'api':
+                                method = params.get('method', 'get')
+                                url = params['url']
+                                self.call_api(method, url)
+                                time.sleep(2)
                     except Exception as e:
                         print(f"[ERROR] Failed to execute action '{action}' in step '{current_step}': {e}")
-                        if current_driver:
+                        if browser_opened and current_driver:
                             current_driver.quit()
                             current_driver = None
-                            
+                            browser_opened = False
         finally:
-            if current_driver:
+            if browser_opened and current_driver:
                 current_driver.quit()
 
     def close(self):

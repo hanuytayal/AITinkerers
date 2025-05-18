@@ -1,33 +1,20 @@
 Check System Status:
     Check GitHub Status
     ACTION: go_to url=https://www.githubstatus.com/
-    ACTION: get_text selector="body"  # Get all visible text for reliability
 
 Database Issue Investigation:
     Check System Resources:
-        Check Disk Space
         ACTION: cli command="df -h"
         ACTION: screenshot name_prefix="disk_status"
 
     Check Database Status:
-        Check Docker Container Status
         ACTION: cli command="docker ps | grep postgres || true"
         ACTION: screenshot name_prefix="db_container_status"
-        
-        Check Database Logs
         ACTION: cli command="docker logs $(docker ps -q --filter 'name=postgres' --latest 2>/dev/null) --tail 20 2>/dev/null || echo 'No postgres container found'"
         ACTION: screenshot name_prefix="db_logs"
 
     Document Results:
-        Export Diagnostic Information
-        ACTION: cli command="echo '=== Database Investigation Results ===' > investigation_results.txt"
-        ACTION: cli command="date >> investigation_results.txt"
-        ACTION: cli command="echo '\n=== System Status ===' >> investigation_results.txt"
-        ACTION: cli command="echo '\n=== Database Status ===' >> investigation_results.txt"
-        ACTION: cli command="docker ps | grep postgres >> investigation_results.txt || echo 'No postgres container found' >> investigation_results.txt"
-        ACTION: cli command="echo '\n=== Investigation Complete ===' >> investigation_results.txt"
-        
-        Save Screenshots
+        ACTION: cli command="echo '=== Database Investigation Results ===' > investigation_results.txt && date >> investigation_results.txt && echo '\n=== System Status ===' >> investigation_results.txt && echo '\n=== Database Status ===' >> investigation_results.txt && docker ps | grep postgres >> investigation_results.txt || echo 'No postgres container found' >> investigation_results.txt && echo '\n=== Investigation Complete ===' >> investigation_results.txt"
         ACTION: cli command="mkdir -p diagnostic_results && mv *.png diagnostic_results/ 2>/dev/null || echo 'No screenshots to move'"
-        
+
 END_RUNBOOK
