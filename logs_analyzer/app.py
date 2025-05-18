@@ -137,6 +137,26 @@ def analyze(filename):
                 for issue in final_issues:
                     ticket = ticket_service.create_ticket(issue)
                     tickets.append(ticket)
+                    
+                    # Add a reasoning step for knowledge base augmentation
+                    if "knowledge_base" in ticket and ticket["knowledge_base"]:
+                        kb_entries = ticket["knowledge_base"]
+                        kb_titles = [entry.get("title", "Untitled") for entry in kb_entries]
+                        kb_links = [entry.get("link", "") for entry in kb_entries]
+                        
+                        # Create a more detailed message
+                        kb_reasoning = f"Knowledge Base Agent found {len(kb_entries)} relevant document(s) for ticket {ticket['id']}:"
+                        for i, (title, link) in enumerate(zip(kb_titles, kb_links)):
+                            kb_reasoning += f"\n- {title} ({link})"
+                        
+                        kb_step = {
+                            "timestamp": datetime.now().isoformat(),
+                            "content": kb_reasoning,
+                            "type": "agent_state"
+                        }
+                        analysis_state['reasoning_steps'].append(kb_step)
+                        reasoning_stream.put(kb_step)
+                        
             analysis_state['tickets_created'] = tickets
             print("[DEBUG] run_analysis completed")
         finally:
