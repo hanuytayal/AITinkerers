@@ -97,6 +97,7 @@ class LogAnalysisAgent:
                     "count": number,
                     "description": "string",
                     "recommended_action": "string"
+                    "knowledge_sources":"string"
                 }}
             ]
             
@@ -189,15 +190,16 @@ class LogAnalysisAgent:
                     "last_seen": timestamps[-1],
                     "count": count,
                     "description": f"{message} occurred {count} times",
-                    "recommended_action": "Restart service" if "OOM" in message else "Investigate error condition"
-                })
+                    "recommended_action": "Restart service" if "OOM" in message else "Investigate error condition",
+                    "knowledge_sources":"Test"  
+                }) 
                 
                 self.add_reasoning_step(f"Identified critical issue in {service}: {message} ({count} occurrences)")
         
         # Add synthetic pause to simulate API processing time
         time.sleep(1)
         
-        return issues
+        return issues 
     
     def get_reasoning_steps(self):
         """Get the reasoning steps from the analysis"""
