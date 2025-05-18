@@ -1,0 +1,6 @@
+screenshots/
+*.png
+__pycache__/
+*.pyc
+investigation_results.txt
+diagnostic_results/
