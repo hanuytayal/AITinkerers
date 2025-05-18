@@ -137,7 +137,7 @@ def analyze(filename):
                 for issue in final_issues:
                     ticket = ticket_service.create_ticket(issue)
                     tickets.append(ticket)
-                    
+                    """
                     # Add a reasoning step for knowledge base augmentation
                     if "knowledge_base" in ticket and ticket["knowledge_base"]:
                         kb_entries = ticket["knowledge_base"]
@@ -156,7 +156,7 @@ def analyze(filename):
                         }
                         analysis_state['reasoning_steps'].append(kb_step)
                         reasoning_stream.put(kb_step)
-                        
+                    """
             analysis_state['tickets_created'] = tickets
             print("[DEBUG] run_analysis completed")
         finally:
