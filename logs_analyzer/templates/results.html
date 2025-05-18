@@ -228,6 +228,7 @@
         var renderedStepIds = new Set();
         var hasReceivedSummary = false; // Track if a summary has been received
         var hasEndBubble = false; // Track if end bubble is already displayed
+        var activeSpinners = {}; // To keep track of active spinners, e.g., { ticketId_kb: true, general_analysis: true }
 
         // --- Helper function for priority badge ---
         function getPriorityBadgeClass(priority) {
@@ -416,16 +417,19 @@
             var stepId = step.timestamp + '-' + (step.content || '');
             if (renderedStepIds.has(stepId)) return;
             renderedStepIds.add(stepId);
+
             var index = reasoningContainer.find('.list-group-item').length + 1;
             var stepTypeClass = '';
             var stepIcon = '';
             var stepTitle = `Step ${index}`;
             var contentClass = '';
-            
+            var listItemId = 'step-' + Date.now() + Math.random().toString(36).substring(2, 15);
+
             // If this is the first summary, remove the spinner from any "Analyzing logs..." message
             if (step.type === 'summary' && !hasReceivedSummary) {
                 hasReceivedSummary = true;
-                $('.analyzing-logs-spinner').hide();
+                $('.analyzing-logs-spinner-general').hide(); 
+                delete activeSpinners['general_analysis'];
             }
             
             if (step.type === 'summary') {
@@ -454,24 +458,66 @@
                 stepIcon = '<i class="fas fa-tools me-2 text-warning"></i>';
                 stepTitle = 'Resolution Agent';
                 contentClass = '';
+            } else if (step.type === 'agent_action') { // New type for actions like KB search
+                stepTypeClass = 'bg-light border-purple'; // Example: a new color for actions
+                stepIcon = '<i class="fas fa-cogs me-2 text-purple"></i>'; // Example: new icon
+                stepTitle = 'Agent Action';
+                contentClass = 'fst-italic';
             } else {
                 stepIcon = '<i class="fas fa-cog me-2"></i>';
             }
             
-            // Add spinner for "Analyzing logs..." message
             var content = step.content_html !== undefined ? step.content_html : step.content;
+            var spinnerId = '';
+
+            // Add spinner for "Analyzing logs..." message
             if (content === "Analyzing logs...") {
-                content += ' <span class="analyzing-logs-spinner"><i class="fas fa-spinner fa-spin"></i></span>';
+                spinnerId = 'analyzing-logs-spinner-general';
+                if (!activeSpinners['general_analysis']) {
+                    content += ` <span class="spinner-border spinner-border-sm ${spinnerId}" role="status" aria-hidden="true"></span>`;
+                    activeSpinners['general_analysis'] = true;
+                }
+            }
+
+            // Add spinner for "Searching knowledge base..."
+            if (step.type === 'agent_action' && content.startsWith("Searching knowledge base for ticket")) {
+                var ticketIdMatch = content.match(/ticket ([^ ]+)\.\.\./);
+                if (ticketIdMatch && ticketIdMatch[1]) {
+                    var ticketId = ticketIdMatch[1];
+                    spinnerId = `searching-kb-spinner-${ticketId}`;
+                    if (!activeSpinners[`kb_${ticketId}`]) {
+                        content += ` <span class="spinner-border spinner-border-sm ${spinnerId}" role="status" aria-hidden="true"></span>`;
+                        activeSpinners[`kb_${ticketId}`] = true;
+                         // Store the list item ID with the ticketId for later spinner removal
+                        listItemId = `kb-search-status-${ticketId}`; 
+                    }
+                }
             }
 
             // --- Client-side markdown rendering for summary steps ---
             if (step.type === 'summary') {
-                // Use marked.js to render markdown to HTML
                 content = marked.parse(step.content || '');
+            }
+
+            // Remove spinner if KB results for a ticket arrive
+            if (step.type === 'agent_state' && content.startsWith("Knowledge Base Agent found")) {
+                var ticketIdMatchKBResult = content.match(/ticket ([^ ]+):/);
+                if (ticketIdMatchKBResult && ticketIdMatchKBResult[1]) {
+                    var ticketIdKB = ticketIdMatchKBResult[1];
+                    var kbSpinnerId = `searching-kb-spinner-${ticketIdKB}`;
+                    var kbSearchStatusListItem = $(`#kb-search-status-${ticketIdKB}`);
+                    if (kbSearchStatusListItem.length > 0) {
+                        kbSearchStatusListItem.find(`.${kbSpinnerId}`).hide();
+                    } else {
+                        // Fallback if specific item ID wasn't found or set, try broader search for spinner by class
+                         $(`.${kbSpinnerId}`).hide();
+                    }
+                    delete activeSpinners[`kb_${ticketIdKB}`];
+                }
             }
             
             var stepHtml = `
-                <div class="list-group-item ${stepTypeClass}">
+                <div class="list-group-item ${stepTypeClass}" id="${listItemId}">
                     <div class="d-flex w-100 justify-content-between">
                         <h6 class="mb-1">
                             ${stepIcon}${stepTitle}

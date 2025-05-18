@@ -157,6 +157,26 @@ def analyze(filename):
                     
                     # Process knowledge base information separately
                     try:
+                        # Add step for starting KB search
+                        kb_search_start_step = {
+                            "timestamp": datetime.now().isoformat(),
+                            "content": f"Searching knowledge base for ticket {ticket['id']}...",
+                            "type": "agent_action" 
+                        }
+                        analysis_state['reasoning_steps'].append(kb_search_start_step)
+                        reasoning_stream.put(kb_search_start_step)
+                        print(f"[DEBUG] Starting KB search for ticket {ticket['id']}")
+                        sys.stdout.flush() 
+                        time.sleep(10) 
+
+                        # Actually augment the ticket with KB info now
+                        ticket = ticket_service.augment_ticket_with_kb(ticket)
+                        # Update the ticket in the global state list immediately
+                        for i, t_state in enumerate(analysis_state['tickets_created']):
+                            if t_state['id'] == ticket['id']:
+                                analysis_state['tickets_created'][i] = ticket
+                                break
+
                         if "knowledge_base" in ticket and ticket["knowledge_base"]:
                             kb_entries = ticket["knowledge_base"]
                             kb_titles = [entry.get("title", "Untitled") for entry in kb_entries]
@@ -273,10 +293,6 @@ def analyze(filename):
                         print(f"[DEBUG] Process completed with return code {process.returncode}")
                         
                         # Wait for the threads to finish reading output
-                        stdout_thread.join(timeout=3.0)
-                        stderr_thread.join(timeout=3.0)
-                        
-                        # Process any remaining output in the queues
                         stdout_lines = []
                         while not stdout_queue.empty():
                             stdout_lines.append(stdout_queue.get())
