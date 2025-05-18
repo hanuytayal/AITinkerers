@@ -13,11 +13,11 @@
             <div class="card-body">
                 <h5>File: {{ state.current_file }}</h5>
                 {% if state.tickets_created %}
-                    <p>The AI agent automatically created {{ state.tickets_created|length }} tickets for critical issues:</p>
+                    <p id="tickets-header-message">The AI agent automatically created {{ state.tickets_created|length }} tickets for critical issues:</p>
                     
                     <div class="tickets-container">
                         {% for ticket in state.tickets_created %}
-                        <div class="card mb-3 ticket-card">
+                        <div class="card mb-3 ticket-card" id="ticket-card-{{ ticket.id }}">
                             <div class="card-header d-flex justify-content-between align-items-center">
                                 <span class="fs-5">{{ ticket.id }}</span>
                                 <span class="badge bg-{{ 'danger' if 'P0' in ticket.priority else 'warning' if 'P1' in ticket.priority else 'info' if 'P2' in ticket.priority else 'secondary' }}">
@@ -32,10 +32,10 @@
                                     <div class="col-md-6">
                                         <h6>Details</h6>
                                         <ul class="list-group list-group-flush">
-                                            <li class="list-group-item"><strong>Status:</strong> {{ ticket.status }}</li>
-                                            <li class="list-group-item"><strong>Created:</strong> {{ ticket.created_at }}</li>
-                                            <li class="list-group-item"><strong>Service:</strong> {{ ticket.issue.service }}</li>
-                                            <li class="list-group-item"><strong>Count:</strong> {{ ticket.issue.count }} occurrences</li>
+                                            <li class="list-group-item"><strong>Status:</strong> <span class="ticket-status">{{ ticket.status }}</span></li>
+                                            <li class="list-group-item"><strong>Created:</strong> <span class="ticket-created-at">{{ ticket.created_at }}</span></li>
+                                            <li class="list-group-item"><strong>Service:</strong> <span class="ticket-service">{{ ticket.issue.service }}</span></li>
+                                            <li class="list-group-item"><strong>Count:</strong> <span class="ticket-issue-count">{{ ticket.issue.count }}</span> occurrences</li>
                                         </ul>
                                     </div>
                                     <div class="col-md-6">
@@ -51,7 +51,7 @@
                                 </div>
                                 
                                 {% if ticket.knowledge_base %}
-                                <div class="mt-3">
+                                <div class="mt-3 kb-section-container" id="kb-section-{{ ticket.id }}">
                                     <h6><i class="fas fa-book-open me-2"></i>Knowledge Base References</h6>
                                     <div class="accordion" id="knowledgeAccordion-{{ ticket.id }}">
                                         {% for kb_entry in ticket.knowledge_base %}
@@ -86,8 +86,11 @@
                         {% endfor %}
                     </div>
                 {% else %}
-                    <div class="alert alert-info">
+                    <div class="alert alert-info" id="no-tickets-message">
                         <i class="fas fa-info-circle me-2"></i>No tickets created.
+                    </div>
+                    <div class="tickets-container" style="display: none;">
+                        <!-- Container for tickets that might be added dynamically -->
                     </div>
                 {% endif %}
             </div>
@@ -194,7 +197,7 @@
 <!-- Add marked.js for client-side markdown rendering -->
 <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 <script>
-    var initialState = {{ state|tojson }};
+    var initialState = JSON.parse('{{ state|tojson|safe }}');
     var ticketsExist = initialState.tickets_created && initialState.tickets_created.length > 0;
     $(document).ready(function() {
         var reasoningContainer = $('.reasoning-steps');
@@ -204,6 +207,144 @@
         var renderedStepIds = new Set();
         var hasReceivedSummary = false; // Track if a summary has been received
         var hasEndBubble = false; // Track if end bubble is already displayed
+
+        // --- Helper function for priority badge ---
+        function getPriorityBadgeClass(priority) {
+            if (!priority) return 'bg-secondary';
+            if (priority.includes('P0')) return 'bg-danger';
+            if (priority.includes('P1')) return 'bg-warning';
+            if (priority.includes('P2')) return 'bg-info';
+            return 'bg-secondary';
+        }
+
+        // --- Helper function to render a single KB entry ---
+        function renderKBEntry(kb_entry, ticket_id, index) {
+            if (!kb_entry) return '';
+            const entryId = `kb-${ticket_id}-${kb_entry.id || index}`;
+            const collapseId = `collapse-${entryId}`;
+            const headingId = `heading-${entryId}`;
+            let tagsHtml = '';
+            if (kb_entry.tags && kb_entry.tags.length > 0) {
+                tagsHtml = kb_entry.tags.map(tag => `<span class="badge bg-secondary me-1">${tag}</span>`).join('');
+            }
+
+            return `
+                <div class="accordion-item">
+                    <h2 class="accordion-header" id="${headingId}">
+                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" 
+                                data-bs-target="#${collapseId}" aria-expanded="false" aria-controls="${collapseId}">
+                            ${kb_entry.title || 'Untitled KB Entry'}
+                        </button>
+                    </h2>
+                    <div id="${collapseId}" class="accordion-collapse collapse" 
+                         aria-labelledby="${headingId}" data-bs-parent="#knowledgeAccordion-${ticket_id}">
+                        <div class="accordion-body">
+                            <p>${kb_entry.content || 'No content.'}</p>
+                            <p class="mt-2 mb-0"><small class="text-muted">
+                                ${kb_entry.link ? `<strong>Source:</strong> <code>${kb_entry.link}</code><br>` : ''}
+                                ${tagsHtml ? `<strong>Tags:</strong> ${tagsHtml}` : ''}
+                            </small></p>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // --- Function to render or update the Knowledge Base section for a ticket card ---
+        function renderOrUpdateKBSection(ticketCard, ticket) {
+            const kbSectionContainerId = `kb-section-${ticket.id}`;
+            let kbSectionDiv = ticketCard.find(`#${kbSectionContainerId}`);
+
+            if (ticket.knowledge_base && ticket.knowledge_base.length > 0) {
+                const accordionId = `knowledgeAccordion-${ticket.id}`;
+                const kbEntriesHtml = ticket.knowledge_base.map((entry, index) => renderKBEntry(entry, ticket.id, index)).join('');
+                const newKbSectionHtml = `
+                    <h6><i class="fas fa-book-open me-2"></i>Knowledge Base References</h6>
+                    <div class="accordion" id="${accordionId}">
+                        ${kbEntriesHtml}
+                    </div>
+                `;
+
+                if (kbSectionDiv.length === 0) {
+                    // If kb-section-container doesn't exist, find a place to append it or create it
+                    // For simplicity, let's assume a placeholder or append after details
+                    // This part might need refinement based on exact card structure if kb-section is entirely missing
+                    const detailsDiv = ticketCard.find('.row').first(); // a bit fragile selector
+                    kbSectionDiv = $(`<div class="mt-3 kb-section-container" id="${kbSectionContainerId}"></div>`).insertAfter(detailsDiv);
+                }
+                kbSectionDiv.html(newKbSectionHtml);
+                // Initialize new accordions if any
+                // new bootstrap.Collapse(kbSectionDiv.find('.accordion-collapse'), { toggle: false });
+            } else {
+                // No KB or KB removed, clear the section
+                if (kbSectionDiv.length > 0) {
+                    kbSectionDiv.empty(); // Or hide it, depending on desired behavior
+                }
+            }
+        }
+
+
+        // --- Function to create a new ticket card element ---
+        function createTicketCardElement(ticket) {
+            const cardId = `ticket-card-${ticket.id}`;
+            const priorityBadgeClass = getPriorityBadgeClass(ticket.priority);
+            
+            const cardHtml = `
+                <div class="card mb-3 ticket-card" id="${cardId}">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <span class="fs-5">${ticket.id}</span>
+                        <span class="badge ${priorityBadgeClass}">${ticket.priority}</span>
+                    </div>
+                    <div class="card-body">
+                        <h5 class="card-title">${ticket.title || 'No Title'}</h5>
+                        <p class="card-text">${ticket.description || 'No Description'}</p>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h6>Details</h6>
+                                <ul class="list-group list-group-flush">
+                                    <li class="list-group-item"><strong>Status:</strong> <span class="ticket-status">${ticket.status}</span></li>
+                                    <li class="list-group-item"><strong>Created:</strong> <span class="ticket-created-at">${new Date(ticket.created_at).toLocaleString()}</span></li>
+                                    <li class="list-group-item"><strong>Service:</strong> <span class="ticket-service">${ticket.issue ? ticket.issue.service : 'N/A'}</span></li>
+                                    <li class="list-group-item"><strong>Count:</strong> <span class="ticket-issue-count">${ticket.issue ? ticket.issue.count : 'N/A'}</span> occurrences</li>
+                                </ul>
+                            </div>
+                            <div class="col-md-6">
+                                <h6>Assignment</h6>
+                                <div class="card">
+                                    <div class="card-body">
+                                        <h6 class="card-title">${ticket.assigned_to ? ticket.assigned_to.name : 'N/A'}</h6>
+                                        <p class="card-text"><strong>Team:</strong> ${ticket.assigned_to ? ticket.assigned_to.team : 'N/A'}</p>
+                                        <p class="card-text"><small class="text-muted">ID: ${ticket.assigned_to ? ticket.assigned_to.id : 'N/A'}</small></p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mt-3 kb-section-container" id="kb-section-${ticket.id}">
+                            <!-- KB will be rendered here by renderOrUpdateKBSection -->
+                        </div>
+                    </div>
+                </div>
+            `;
+            const newCard = $(cardHtml);
+            renderOrUpdateKBSection(newCard, ticket); // Initial KB render
+            return newCard;
+        }
+
+        // --- Function to update an existing ticket card ---
+        function updateTicketCardElement(ticketCard, ticket) {
+            // Update status
+            const statusSpan = ticketCard.find('.ticket-status');
+            if (statusSpan.text() !== ticket.status) {
+                statusSpan.text(ticket.status);
+                if (ticket.status === 'Resolved') {
+                    ticketCard.addClass('border-success');
+                } else {
+                    ticketCard.removeClass('border-success');
+                }
+            }
+            // Update KB
+            renderOrUpdateKBSection(ticketCard, ticket);
+        }
 
         // Function to add a new reasoning step to the UI (deduplicated)
         function addReasoningStep(step) {
@@ -243,6 +384,11 @@
                 stepIcon = '<i class="fas fa-robot me-2 text-info"></i>';
                 stepTitle = 'Agent State';
                 contentClass = 'fst-italic';
+            } else if (step.type === 'resolution_agent') {
+                stepTypeClass = 'bg-light border-warning';
+                stepIcon = '<i class="fas fa-tools me-2 text-warning"></i>';
+                stepTitle = 'Resolution Agent';
+                contentClass = '';
             } else {
                 stepIcon = '<i class="fas fa-cog me-2"></i>';
             }
@@ -321,73 +467,118 @@
             addReasoningStep(startStep);
         }
 
-        // Only start polling and SSE if there are no tickets yet
-        if (!ticketsExist) {
-            // Connect to the server-sent events endpoint
-            var eventSource = new EventSource('/stream/reasoning');
-            eventSource.onmessage = function(event) {
-                var data = JSON.parse(event.data);
-                if (data.keepalive) return;
-                if (data.type === 'summary') {
-                    // Optionally play a sound
+        // Connect to the server-sent events endpoint
+        var eventSource = new EventSource('/stream/reasoning');
+        eventSource.onmessage = function(event) {
+            var data = JSON.parse(event.data);
+            if (data.keepalive) return;
+            
+            console.log("SSE event received:", data.type, data.content ? data.content.substring(0, 50) + "..." : "");
+            
+            // Process resolution agent events for tickets
+            if (data.type === 'agent_state' && data.content.includes('has been resolved')) {
+                // Extract ticket ID from the message
+                var ticketMatch = data.content.match(/Ticket\\s+([^\\s]+)/);
+                if (ticketMatch && ticketMatch[1]) {
+                    var ticketId = ticketMatch[1];
+                    console.log("Marking ticket as resolved:", ticketId);
+                    // Update the ticket status in the UI
+                    $('.ticket-card').each(function() {
+                        if ($(this).find('.card-header span:first').text().trim() === ticketId) {
+                            $(this).find('.list-group-item:contains("Status")').html('<strong>Status:</strong> Resolved');
+                            $(this).addClass('border-success');
+                        }
+                    });
                 }
-                addReasoningStep(data);
-            };
-            eventSource.onerror = function() {
-                setTimeout(function() {
-                    eventSource.close();
-                    eventSource = new EventSource('/stream/reasoning');
-                }, 3000);
-            };
-            $(window).on('unload', function() {
-                if (eventSource) {
-                    eventSource.close();
+            }
+            
+            // Ensure real-time update for resolution agent output
+            if (data.type === 'resolution_agent') {
+                console.log("Resolution agent output received");
+            }
+            
+            // Always add the step to the reasoning steps area
+            addReasoningStep(data);
+            
+            // Force browser to render immediately
+            setTimeout(function() {
+                reasoningContainer.scrollTop(reasoningContainer[0].scrollHeight);
+            }, 0);
+        };
+        eventSource.onerror = function() {
+            setTimeout(function() {
+                eventSource.close();
+                eventSource = new EventSource('/stream/reasoning');
+            }, 3000);
+        };
+        $(window).on('unload', function() {
+            if (eventSource) {
+                eventSource.close();
+            }
+        });
+
+        // --- Auto-refresh tickets section every second ---
+        var pollingInterval = setInterval(function() {
+            $.getJSON('/api/state', function(state) {
+                const ticketsContainer = $('.tickets-container');
+                const noTicketsMessage = $('#no-tickets-message');
+                const ticketsHeaderMessage = $('#tickets-header-message');
+
+                if (state && state.tickets_created) {
+                    if (state.tickets_created.length > 0) {
+                        if (noTicketsMessage.is(':visible')) {
+                            noTicketsMessage.hide();
+                        }
+                        // Ensure tickets-container is visible if it was hidden
+                        if (ticketsContainer.is(':hidden')) {
+                            ticketsContainer.show();
+                        }
+
+                        if (ticketsHeaderMessage.length === 0) {
+                            // Create header if it doesn't exist (e.g. if started with 0 tickets)
+                            $(`<p id="tickets-header-message">The AI agent automatically created ${state.tickets_created.length} tickets for critical issues:</p>`)
+                                .insertBefore(ticketsContainer);
+                        } else {
+                            ticketsHeaderMessage.html(`The AI agent automatically created ${state.tickets_created.length} tickets for critical issues:`).show();
+                        }
+
+                        state.tickets_created.forEach(function(ticket) {
+                            let ticketCard = $(`#ticket-card-${ticket.id}`);
+                            if (ticketCard.length === 0) { // New ticket
+                                const newCardElement = createTicketCardElement(ticket);
+                                ticketsContainer.append(newCardElement);
+                            } else { // Existing ticket, update it
+                                updateTicketCardElement(ticketCard, ticket);
+                            }
+                        });
+                    } else { // No tickets
+                        if (!noTicketsMessage.is(':visible')) {
+                            noTicketsMessage.show();
+                        }
+                        if (ticketsHeaderMessage.length > 0) {
+                            ticketsHeaderMessage.hide();
+                        }
+                        ticketsContainer.empty().hide(); // Clear and hide if no tickets
+                    }
+                    lastTicketCount = state.tickets_created.length;
                 }
             });
-            // --- Auto-refresh tickets section every 3 seconds ---
-            var pollingInterval = setInterval(function() {
-                $.getJSON('/api/state', function(state) {
-                    if (state && state.tickets_created) {
-                        if (state.tickets_created.length > lastTicketCount) {
-                            // Add completion bubble before reload if tickets were created
-                            if (state.tickets_created.length > 0 && !hasEndBubble) {
-                                hasEndBubble = true;
-                                var endStep = {
-                                    timestamp: new Date().toISOString(),
-                                    content: "Analysis complete. Created " + state.tickets_created.length + " ticket(s).",
-                                    type: "agent_state"
-                                };
-                                addReasoningStep(endStep);
-                                // Short delay before reload to show the completion message
-                                setTimeout(function() {
-                                    window.location.reload();
-                                }, 1000);
-                                return;
-                            }
-                            window.location.reload();
-                        }
-                        // If at least one ticket exists, stop polling and close SSE
-                        if (state.tickets_created.length > 0) {
-                            // Add completion bubble if not already added
-                            if (!hasEndBubble) {
-                                hasEndBubble = true;
-                                var endStep = {
-                                    timestamp: new Date().toISOString(),
-                                    content: "Analysis complete. Created " + state.tickets_created.length + " ticket(s).",
-                                    type: "agent_state"
-                                };
-                                addReasoningStep(endStep);
-                            }
-                            clearInterval(pollingInterval);
-                            if (eventSource) {
-                                eventSource.close();
-                            }
-                        }
-                        lastTicketCount = state.tickets_created.length;
-                    }
-                });
-            }, 3000);
-        }
+        }, 1000);
+
+        // Update the reasoning-steps container display to use fixed height with scroll
+        $('.reasoning-steps').css({
+            'max-height': '600px',
+            'overflow-y': 'auto'
+        });
+        
+        // Make SSE more reliable by adding an additional connection check
+        setInterval(function() {
+            if (eventSource.readyState !== 1) { // 1 = OPEN
+                console.log("SSE connection lost, reconnecting...");
+                eventSource.close();
+                eventSource = new EventSource('/stream/reasoning');
+            }
+        }, 5000);
     });
 </script>
 {% endblock %} 

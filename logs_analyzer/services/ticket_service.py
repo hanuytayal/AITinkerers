@@ -316,4 +316,22 @@ class TicketService:
         for ticket in self.tickets:
             if ticket['id'] == ticket_id:
                 return ticket
-        return None 
+        return None
+
+    def append_to_ticket(self, ticket_id, content, field="resolution_output"):
+        """Append content to a ticket under a specified field (default: 'resolution_output')."""
+        ticket = self.get_ticket(ticket_id)
+        if ticket is not None:
+            if field not in ticket:
+                ticket[field] = []
+            ticket[field].append(content)
+            return True
+        return False
+
+    def mark_ticket_resolved(self, ticket_id):
+        """Mark a ticket as resolved by setting its status to 'Resolved'."""
+        ticket = self.get_ticket(ticket_id)
+        if ticket is not None:
+            ticket["status"] = "Resolved"
+            return True
+        return False 
