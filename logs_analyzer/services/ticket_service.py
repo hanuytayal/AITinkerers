@@ -130,9 +130,6 @@ class KnowledgeBaseAgent:
         Returns:
             list: Relevant knowledge base entries
         """
-        # Simulate search delay
-        time.sleep(0.5)
-        
         print(f"[DEBUG] Searching knowledge base for ticket {ticket.get('id', 'unknown')}")
         
         # Extract search terms from the ticket
@@ -251,44 +248,53 @@ class TicketService:
             "description": issue['description'],
             "status": "Open",
             "created_at": datetime.now().isoformat(),
+            "priority": self._map_severity_to_priority(issue['severity']),
             "assigned_to": assigned_engineer,
             "issue": issue,
-            "priority": self._map_severity_to_priority(issue['severity'])
+            "knowledge_base": [],
+            "resolution_output": [] 
         }
         
-        # Store ticket (in a real system, this would be sent to an API)
+        # Add ticket to list
         self.tickets.append(ticket)
         
-        # Augment ticket with knowledge base information
-        self.augment_ticket_with_knowledge(ticket)
+        # DO NOT augment with knowledge here. This will be a separate step.
+        # ticket = self.augment_ticket_with_knowledge(ticket) 
         
+        print(f"[DEBUG] Ticket {ticket_id} created for {issue['service']} - {issue['issue_type']}. Assigned to {assigned_engineer['name']}")
         return ticket
-    
-    def augment_ticket_with_knowledge(self, ticket):
+
+    def augment_ticket_with_kb(self, ticket_to_augment):
         """
-        Augment a ticket with knowledge base information from the knowledge agent
+        Augment a ticket with knowledge base information.
+        This method now expects the actual ticket object.
+        """
+        if not ticket_to_augment:
+            print(f"[ERROR] augment_ticket_with_kb: Called with no ticket.")
+            return None
+
+        print(f"[DEBUG] Augmenting ticket {ticket_to_augment['id']} with knowledge base info")
         
-        Args:
-            ticket (dict): The ticket to augment
-        """
-        try:
-            print(f"[DEBUG] Augmenting ticket {ticket.get('id')} with knowledge base information")
-            
-            # Find relevant knowledge base entries for this ticket
-            knowledge_entries = self.knowledge_agent.search_knowledge_base(ticket)
-            
-            print(f"[DEBUG] Found {len(knowledge_entries)} knowledge entries for ticket {ticket.get('id')}")
-            
-            # Add knowledge base entries to the ticket
-            ticket["knowledge_base"] = knowledge_entries
-            
-            print(f"[DEBUG] Successfully augmented ticket {ticket.get('id')}")
-            return ticket
-        except Exception as e:
-            print(f"[ERROR] Error augmenting ticket with knowledge: {e}")
-            # Make sure the knowledge_base field exists even if empty
-            ticket["knowledge_base"] = []
-            return ticket
+        # Find relevant knowledge base entries
+        relevant_kb_entries = self.knowledge_agent.search_knowledge_base(ticket_to_augment)
+        
+        # Update the ticket with knowledge base info
+        # Find the ticket in self.tickets and update it
+        found_ticket = False
+        for i, t in enumerate(self.tickets):
+            if t['id'] == ticket_to_augment['id']:
+                self.tickets[i]["knowledge_base"] = relevant_kb_entries
+                # Return the updated ticket from the list for consistency
+                updated_ticket = self.tickets[i] 
+                found_ticket = True
+                break
+        
+        if not found_ticket:
+            print(f"[ERROR] augment_ticket_with_kb: Ticket {ticket_to_augment['id']} not found in service list.")
+            return ticket_to_augment # Return original if not found, though this shouldn't happen
+
+        print(f"[DEBUG] Ticket {updated_ticket['id']} augmented with {len(relevant_kb_entries)} KB entries.")
+        return updated_ticket
     
     def _assign_engineer(self, service):
         """

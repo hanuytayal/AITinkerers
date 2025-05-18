@@ -170,7 +170,7 @@ Here are the logs to analyze:
                 ],
                 tools=[create_ticket_tool],
                 tool_choice="auto",  # Allow model to choose when to use tools
-                reasoning={"summary": "detailed"},  # Enable reasoning summaries
+                reasoning={"summary": "detailed", "effort": "high"},  # Enable reasoning summaries
                 stream=True  # Enable streaming
             )
 
