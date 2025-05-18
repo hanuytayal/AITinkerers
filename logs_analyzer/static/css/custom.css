@@ -13,6 +13,50 @@
     background-color: rgba(23, 162, 184, 0.05);
 }
 
+/* Styling for different step types */
+.reasoning-steps .list-group-item.border-primary {
+    border-left-width: 4px;
+}
+
+.reasoning-steps .list-group-item.border-success {
+    border-left-width: 4px;
+}
+
+.reasoning-steps .list-group-item.border-danger {
+    border-left-width: 4px;
+}
+
+/* Summary step special styling */
+.reasoning-steps .list-group-item:has(.text-primary) {
+    background-color: rgba(13, 110, 253, 0.05);
+    margin-top: 10px;
+    margin-bottom: 10px;
+    border-radius: 6px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+}
+
+/* Transition effects for new reasoning steps */
+.reasoning-steps .list-group-item {
+    transition: all 0.3s ease;
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.reasoning-steps .list-group-item.new-step {
+    animation: fadeIn 0.5s ease-in-out;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
 /* Ticket cards */
 .ticket-card {
     transition: transform 0.2s;

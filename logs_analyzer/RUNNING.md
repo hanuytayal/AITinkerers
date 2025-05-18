@@ -105,7 +105,7 @@ The application displays the AI's reasoning process in real-time:
 
 - **Import Errors**: Verify that all dependencies were installed correctly.
 
-- **OpenAI API Errors**: If you encounter errors with the OpenAI API, verify your API key and check that you have access to the o1-mini model.
+- **OpenAI API Errors**: If you encounter errors with the OpenAI API, verify your API key and check that you have access to the o4-mini model.
 
 ## Viewing the Application
 
