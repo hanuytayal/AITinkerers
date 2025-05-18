@@ -87,7 +87,7 @@
                     </div>
                 {% else %}
                     <div class="alert alert-info">
-                        <i class="fas fa-info-circle me-2"></i>No tickets created. No critical issues were found that occurred 5 or more times.
+                        <i class="fas fa-info-circle me-2"></i>No tickets created.
                     </div>
                 {% endif %}
             </div>
@@ -162,7 +162,7 @@
                             <div class="d-flex w-100 justify-content-between">
                                 <h6 class="mb-1">
                                     {% if step.type == 'summary' %}
-                                        <i class="fas fa-lightbulb me-2 text-primary"></i>Summary
+                                        <i class="fas fa-lightbulb me-2 text-primary"></i>Thinking
                                     {% elif step.type == 'reasoning_step' %}
                                         <i class="fas fa-project-diagram me-2 text-info"></i>Reasoning 
                                     {% elif step.type == 'issue' %}
@@ -175,7 +175,7 @@
                                 </h6>
                                 <small class="text-muted">{{ step.timestamp }}</small>
                             </div>
-                            <p class="mb-1 {% if step.type == 'summary' %}fw-bold{% endif %}">{{ step.content_html or step.content }}</p>
+                            <div class="mb-1">{{ step.content_html or step.content }}</div>
                         </div>
                         {% endfor %}
                     {% else %}
@@ -191,6 +191,8 @@
 {% endblock %}
 
 {% block scripts %}
+<!-- Add marked.js for client-side markdown rendering -->
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 <script>
     var initialState = {{ state|tojson }};
     var ticketsExist = initialState.tickets_created && initialState.tickets_created.length > 0;
@@ -223,8 +225,7 @@
             if (step.type === 'summary') {
                 stepTypeClass = 'bg-light border-primary';
                 stepIcon = '<i class="fas fa-lightbulb me-2 text-primary"></i>';
-                stepTitle = 'Summary';
-                contentClass = 'fw-bold';
+                stepTitle = 'Thinking';
             } else if (step.type === 'reasoning_step') {
                 stepTypeClass = '';
                 stepIcon = '<i class="fas fa-project-diagram me-2 text-info"></i>';
@@ -251,6 +252,12 @@
             if (content === "Analyzing logs...") {
                 content += ' <span class="analyzing-logs-spinner"><i class="fas fa-spinner fa-spin"></i></span>';
             }
+
+            // --- Client-side markdown rendering for summary steps ---
+            if (step.type === 'summary') {
+                // Use marked.js to render markdown to HTML
+                content = marked.parse(step.content || '');
+            }
             
             var stepHtml = `
                 <div class="list-group-item ${stepTypeClass}">
@@ -260,10 +267,10 @@
                         </h6>
                         <small class="text-muted">${step.timestamp}</small>
                     </div>
-                    <p class="mb-1 ${contentClass}">${content}</p>
+                    <div class="mb-1 ${contentClass}">${content}</div>
                 </div>
             `;
-            reasoningContainer.append(stepHtml);
+            reasoningContainer.append($(stepHtml));
             reasoningContainer.scrollTop(reasoningContainer[0].scrollHeight);
         }
 
