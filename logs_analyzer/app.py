@@ -7,6 +7,9 @@ from datetime import datetime
 import queue
 import threading
 import markdown
+import subprocess
+import sys
+import time
 
 from services.agent import LogAnalysisAgent
 from services.ticket_service import TicketService
@@ -139,6 +142,18 @@ def analyze(filename):
                     ticket = ticket_service.create_ticket(issue)
                     # Add ticket to the tickets list immediately
                     tickets.append(ticket)
+                    # Add a step indicating ticket creation
+                    ticket_created_step = {
+                        "timestamp": datetime.now().isoformat(),
+                        "content": f"Ticket {ticket['id']} created with status: {ticket['status']}",
+                        "type": "agent_state"
+                    }
+                    analysis_state['reasoning_steps'].append(ticket_created_step)
+                    reasoning_stream.put(ticket_created_step)
+                    print(f"[DEBUG] Ticket {ticket['id']} created")
+                    
+                    # Update the global state immediately after ticket creation
+                    analysis_state['tickets_created'] = tickets
                     
                     # Process knowledge base information separately
                     try:
@@ -146,12 +161,10 @@ def analyze(filename):
                             kb_entries = ticket["knowledge_base"]
                             kb_titles = [entry.get("title", "Untitled") for entry in kb_entries]
                             kb_links = [entry.get("link", "") for entry in kb_entries]
-                            
                             # Create a more detailed message
                             kb_reasoning = f"Knowledge Base Agent found {len(kb_entries)} relevant document(s) for ticket {ticket['id']}:"
                             for i, (title, link) in enumerate(zip(kb_titles, kb_links)):
                                 kb_reasoning += f"\n- {title} ({link})"
-                            
                             kb_step = {
                                 "timestamp": datetime.now().isoformat(),
                                 "content": kb_reasoning,
@@ -160,8 +173,162 @@ def analyze(filename):
                             analysis_state['reasoning_steps'].append(kb_step)
                             reasoning_stream.put(kb_step)
                             print(f"[DEBUG] Added KB step for ticket {ticket['id']}")
+                            
+                            # Add a step indicating KB augmentation
+                            kb_update_step = {
+                                "timestamp": datetime.now().isoformat(),
+                                "content": f"Ticket {ticket['id']} augmented with Knowledge Base references",
+                                "type": "agent_state"
+                            }
+                            analysis_state['reasoning_steps'].append(kb_update_step)
+                            reasoning_stream.put(kb_update_step)
+                            # Let the UI update before proceeding
+                            time.sleep(0.5)
+
+                        # --- Run the resolution agent as a subprocess (streamed) ---
+                        demo_run_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '../exe_agent/demo_run.py'))
+                        
+                        # Indicate resolution agent is starting
+                        start_resolution_step = {
+                            "timestamp": datetime.now().isoformat(),
+                            "content": f"Starting Resolution Agent for ticket {ticket['id']}...",
+                            "type": "resolution_agent"
+                        }
+                        analysis_state['reasoning_steps'].append(start_resolution_step)
+                        reasoning_stream.put(start_resolution_step)
+                        print(f"[DEBUG] Starting Resolution Agent for ticket {ticket['id']}")
+                        
+                        # Ensure we flush all pending steps before starting subprocess
+                        sys.stdout.flush()
+                        time.sleep(1.0)  # Give UI time to update
+                        
+                        # Use non-blocking queue for collecting output
+                        stdout_queue = queue.Queue()
+                        stderr_queue = queue.Queue()
+                        
+                        # Use unbuffered pipe to ensure immediate output
+                        process = subprocess.Popen(
+                            [sys.executable, "-u", demo_run_path],  # -u for unbuffered output
+                            stdout=subprocess.PIPE,
+                            stderr=subprocess.PIPE,
+                            text=True,
+                            bufsize=0  # Unbuffered
+                        )
+                        
+                        # Stream stdout and stderr in real time with immediate flushing
+                        def stream_subprocess_output(stream, stream_type, output_queue):
+                            try:
+                                line_counter = 0
+                                for line in iter(stream.readline, ''):
+                                    if not line:
+                                        break
+                                    
+                                    line_counter += 1
+                                    line = line.strip()
+                                    if line:
+                                        print(f"[DEBUG] {stream_type} line {line_counter}: {line}")
+                                        # Store in queue for later processing
+                                        output_queue.put(line)
+                                        
+                                        # Send to reasoning stream
+                                        resolution_step = {
+                                            "timestamp": datetime.now().isoformat(),
+                                            "content": f"Resolution Agent {stream_type} for ticket {ticket['id']}: {line}",
+                                            "type": "resolution_agent"
+                                        }
+                                        analysis_state['reasoning_steps'].append(resolution_step)
+                                        reasoning_stream.put(resolution_step)
+                                        
+                                        # Flush to ensure immediate delivery
+                                        sys.stdout.flush()
+                                        
+                                print(f"[DEBUG] {stream_type} stream complete after {line_counter} lines")
+                            except Exception as e:
+                                print(f"[ERROR] Exception in {stream_type} stream thread: {e}")
+                                import traceback
+                                traceback.print_exc()
+                            finally:
+                                stream.close()
+                        
+                        # Run stream readers in separate threads
+                        stdout_thread = threading.Thread(
+                            target=stream_subprocess_output, 
+                            args=(process.stdout, 'STDOUT', stdout_queue)
+                        )
+                        stderr_thread = threading.Thread(
+                            target=stream_subprocess_output, 
+                            args=(process.stderr, 'STDERR', stderr_queue)
+                        )
+                        
+                        stdout_thread.daemon = True
+                        stderr_thread.daemon = True
+                        stdout_thread.start()
+                        stderr_thread.start()
+                        
+                        print(f"[DEBUG] Waiting for process to complete...")
+                        
+                        # Wait for the subprocess to complete
+                        process.wait()
+                        
+                        print(f"[DEBUG] Process completed with return code {process.returncode}")
+                        
+                        # Wait for the threads to finish reading output
+                        stdout_thread.join(timeout=3.0)
+                        stderr_thread.join(timeout=3.0)
+                        
+                        # Process any remaining output in the queues
+                        stdout_lines = []
+                        while not stdout_queue.empty():
+                            stdout_lines.append(stdout_queue.get())
+                        
+                        stderr_lines = []
+                        while not stderr_queue.empty():
+                            stderr_lines.append(stderr_queue.get())
+                            
+                        print(f"[DEBUG] Total output captured: {len(stdout_lines)} stdout lines, {len(stderr_lines)} stderr lines")
+                        
+                        # Ensure we flush all pending steps before marking as resolved
+                        time.sleep(1.0)  # Give previous steps time to be sent to client
+                        
+                        # After process successfully completes, mark ticket as resolved
+                        if process.returncode == 0:
+                            ticket_service.mark_ticket_resolved(ticket['id'])
+                            
+                            # Update the ticket in the analysis_state
+                            for i, t in enumerate(analysis_state['tickets_created']):
+                                if t['id'] == ticket['id']:
+                                    analysis_state['tickets_created'][i]['status'] = "Resolved"
+                                    break
+                                    
+                            # Create a completion step
+                            resolved_step = {
+                                "timestamp": datetime.now().isoformat(),
+                                "content": f"Ticket {ticket['id']} has been resolved by the Resolution Agent.",
+                                "type": "agent_state"
+                            }
+                            analysis_state['reasoning_steps'].append(resolved_step)
+                            reasoning_stream.put(resolved_step)
+                            
+                            # Append to the ticket
+                            ticket_service.append_to_ticket(
+                                ticket['id'], 
+                                f"Ticket {ticket['id']} resolved by Resolution Agent. Output: {len(stdout_lines)} lines."
+                            )
+                            print(f"[DEBUG] Resolution agent completed and ticket {ticket['id']} marked as resolved")
+                        else:
+                            error_step = {
+                                "timestamp": datetime.now().isoformat(),
+                                "content": f"Resolution Agent failed for ticket {ticket['id']} with exit code {process.returncode}",
+                                "type": "error"
+                            }
+                            analysis_state['reasoning_steps'].append(error_step)
+                            reasoning_stream.put(error_step)
+                            print(f"[ERROR] Resolution agent failed with exit code {process.returncode}")
+
                     except Exception as e:
-                        print(f"[ERROR] Knowledge base processing error: {e}")
+                        print(f"[ERROR] Knowledge base or resolution agent processing error: {e}")
+                        import traceback
+                        traceback.print_exc()
                 
                 # Update the global state with all tickets
                 analysis_state['tickets_created'] = tickets
@@ -201,6 +368,8 @@ def stream_reasoning():
             if step_id not in sent_steps:
                 sent_steps.add(step_id)
                 yield f"data: {json.dumps(step)}\n\n"
+                # Force flush after each event
+                yield f": keepalive\n\n"
         
         # Then stream new steps as they come in
         while True:
@@ -215,9 +384,13 @@ def stream_reasoning():
                 if step_id not in sent_steps:
                     sent_steps.add(step_id)
                     yield f"data: {json.dumps(step)}\n\n"
+                    # Force flush after each event
+                    yield f": keepalive\n\n"
             except queue.Empty:
                 # Send a heartbeat to keep the connection alive
                 yield f"data: {json.dumps({'keepalive': True})}\n\n"
+                # Force flush
+                yield f": keepalive\n\n"
     
     return Response(event_stream(), content_type='text/event-stream')
 
