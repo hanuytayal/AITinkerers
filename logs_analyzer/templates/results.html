@@ -134,14 +134,24 @@
                 <div class="list-group reasoning-steps">
                     {% if state.reasoning_steps %}
                         {% for step in state.reasoning_steps %}
-                        <div class="list-group-item">
+                        <div class="list-group-item {% if step.type == 'summary' %}bg-light border-primary{% elif step.type == 'issue' %}bg-light border-success{% elif step.type == 'error' %}bg-light border-danger{% endif %}">
                             <div class="d-flex w-100 justify-content-between">
                                 <h6 class="mb-1">
-                                    <i class="fas fa-cog me-2"></i>Step {{ loop.index }}
+                                    {% if step.type == 'summary' %}
+                                        <i class="fas fa-lightbulb me-2 text-primary"></i>Summary
+                                    {% elif step.type == 'reasoning_step' %}
+                                        <i class="fas fa-project-diagram me-2 text-info"></i>Reasoning 
+                                    {% elif step.type == 'issue' %}
+                                        <i class="fas fa-exclamation-circle me-2 text-success"></i>Issue Found
+                                    {% elif step.type == 'error' %}
+                                        <i class="fas fa-exclamation-triangle me-2 text-danger"></i>Error
+                                    {% else %}
+                                        <i class="fas fa-cog me-2"></i>Step {{ loop.index }}
+                                    {% endif %}
                                 </h6>
                                 <small class="text-muted">{{ step.timestamp }}</small>
                             </div>
-                            <p class="mb-1">{{ step.content }}</p>
+                            <p class="mb-1 {% if step.type == 'summary' %}fw-bold{% endif %}">{{ step.content_html or step.content }}</p>
                         </div>
                         {% endfor %}
                     {% else %}
@@ -158,53 +168,116 @@
 
 {% block scripts %}
 <script>
+    var initialState = {{ state|tojson }};
+    var ticketsExist = initialState.tickets_created && initialState.tickets_created.length > 0;
     $(document).ready(function() {
-        // Real-time updates for reasoning steps
-        function updateReasoningSteps() {
-            $.getJSON('/api/reasoning', function(data) {
-                var reasoningContainer = $('.reasoning-steps');
-                var currentStepsCount = reasoningContainer.find('.list-group-item').length;
-                
-                // Only update if we have new steps
-                if (data && data.length > currentStepsCount) {
-                    // Clear existing content
-                    reasoningContainer.empty();
-                    
-                    // Populate with new content
-                    if (data && data.length > 0) {
-                        $.each(data, function(index, step) {
-                            var stepHtml = `
-                                <div class="list-group-item">
-                                    <div class="d-flex w-100 justify-content-between">
-                                        <h6 class="mb-1">
-                                            <i class="fas fa-cog me-2"></i>Step ${index + 1}
-                                        </h6>
-                                        <small class="text-muted">${step.timestamp}</small>
-                                    </div>
-                                    <p class="mb-1">${step.content}</p>
-                                </div>
-                            `;
-                            reasoningContainer.append(stepHtml);
-                        });
-                        
-                        // Scroll to the bottom to show latest step
-                        reasoningContainer.scrollTop(reasoningContainer[0].scrollHeight);
-                    } else {
-                        reasoningContainer.append(`
-                            <div class="alert alert-warning">
-                                No reasoning steps available.
-                            </div>
-                        `);
-                    }
+        var reasoningContainer = $('.reasoning-steps');
+        var ticketsContainer = $('.tickets-container');
+        var ticketsSection = $('.card-body').first();
+        var lastTicketCount = initialState.tickets_created ? initialState.tickets_created.length : 0;
+        var renderedStepIds = new Set();
+
+        // Function to add a new reasoning step to the UI (deduplicated)
+        function addReasoningStep(step) {
+            var stepId = step.timestamp + '-' + (step.content || '');
+            if (renderedStepIds.has(stepId)) return;
+            renderedStepIds.add(stepId);
+            var index = reasoningContainer.find('.list-group-item').length + 1;
+            var stepTypeClass = '';
+            var stepIcon = '';
+            var stepTitle = `Step ${index}`;
+            var contentClass = '';
+            if (step.type === 'summary') {
+                stepTypeClass = 'bg-light border-primary';
+                stepIcon = '<i class="fas fa-lightbulb me-2 text-primary"></i>';
+                stepTitle = 'Summary';
+                contentClass = 'fw-bold';
+            } else if (step.type === 'reasoning_step') {
+                stepTypeClass = '';
+                stepIcon = '<i class="fas fa-project-diagram me-2 text-info"></i>';
+                stepTitle = 'Reasoning';
+            } else if (step.type === 'issue') {
+                stepTypeClass = 'bg-light border-success';
+                stepIcon = '<i class="fas fa-exclamation-circle me-2 text-success"></i>';
+                stepTitle = 'Issue Found';
+            } else if (step.type === 'error') {
+                stepTypeClass = 'bg-light border-danger';
+                stepIcon = '<i class="fas fa-exclamation-triangle me-2 text-danger"></i>';
+                stepTitle = 'Error';
+            } else {
+                stepIcon = '<i class="fas fa-cog me-2"></i>';
+            }
+            var stepHtml = `
+                <div class="list-group-item ${stepTypeClass}">
+                    <div class="d-flex w-100 justify-content-between">
+                        <h6 class="mb-1">
+                            ${stepIcon}${stepTitle}
+                        </h6>
+                        <small class="text-muted">${step.timestamp}</small>
+                    </div>
+                    <p class="mb-1 ${contentClass}">${step.content_html !== undefined ? step.content_html : step.content}</p>
+                </div>
+            `;
+            reasoningContainer.append(stepHtml);
+            reasoningContainer.scrollTop(reasoningContainer[0].scrollHeight);
+        }
+
+        // Initial load of existing reasoning steps (deduplicated)
+        if (initialState.reasoning_steps && initialState.reasoning_steps.length > 0) {
+            reasoningContainer.empty();
+            initialState.reasoning_steps.forEach(function(step) {
+                addReasoningStep(step);
+            });
+        } else {
+            reasoningContainer.append(`
+                <div class="alert alert-warning">
+                    No reasoning steps available yet.
+                </div>
+            `);
+        }
+
+        // Only start polling and SSE if there are no tickets yet
+        if (!ticketsExist) {
+            // Connect to the server-sent events endpoint
+            var eventSource = new EventSource('/stream/reasoning');
+            eventSource.onmessage = function(event) {
+                var data = JSON.parse(event.data);
+                if (data.keepalive) return;
+                if (data.type === 'summary') {
+                    // Optionally play a sound
+                }
+                addReasoningStep(data);
+            };
+            eventSource.onerror = function() {
+                setTimeout(function() {
+                    eventSource.close();
+                    eventSource = new EventSource('/stream/reasoning');
+                }, 3000);
+            };
+            $(window).on('unload', function() {
+                if (eventSource) {
+                    eventSource.close();
                 }
             });
+            // --- Auto-refresh tickets section every 3 seconds ---
+            var pollingInterval = setInterval(function() {
+                $.getJSON('/api/state', function(state) {
+                    if (state && state.tickets_created) {
+                        if (state.tickets_created.length > lastTicketCount) {
+                            window.location.reload();
+                        }
+                        // If at least one ticket exists, stop polling and close SSE
+                        if (state.tickets_created.length > 0) {
+                            clearInterval(pollingInterval);
+                            if (eventSource) {
+                                eventSource.close();
+                            }
+                        }
+                        lastTicketCount = state.tickets_created.length;
+                    }
+                });
+            }, 3000);
         }
-        
-        // Initial load of reasoning steps
-        updateReasoningSteps();
-        
-        // Poll for updates every 2 seconds
-        setInterval(updateReasoningSteps, 2000);
     });
 </script>
 {% endblock %} 
