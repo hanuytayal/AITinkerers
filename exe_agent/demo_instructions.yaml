@@ -1,0 +1,18 @@
+# Example runbook-style instructions for BrowserUseAgent demo
+- step: "Go to Google homepage"
+  action: go_to
+  url: https://www.google.com
+  description: "Navigate to the Google homepage."
+- step: "Search for OpenAI"
+  action: search
+  query: OpenAI
+  search_box_selector: "input[name='q']"
+  description: "Type 'OpenAI' in the search box and submit."
+- step: "Read search results"
+  action: get_text
+  selector: "#search"
+  description: "Extract the text from the search results section."
+- step: "Click the OpenAI website link"
+  action: click
+  selector: "a[href^='https://openai.com']"
+  description: "Click the first link that leads to the OpenAI website."
