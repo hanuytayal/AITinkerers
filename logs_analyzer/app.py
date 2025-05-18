@@ -287,6 +287,8 @@ def analyze(filename):
                             
                         print(f"[DEBUG] Total output captured: {len(stdout_lines)} stdout lines, {len(stderr_lines)} stderr lines")
                         
+                        resolution_log_content = "STDOUT:\n" + "\n".join(stdout_lines) + "\n\nSTDERR:\n" + "\n".join(stderr_lines)
+
                         # Ensure we flush all pending steps before marking as resolved
                         time.sleep(1.0)  # Give previous steps time to be sent to client
                         
@@ -298,6 +300,7 @@ def analyze(filename):
                             for i, t in enumerate(analysis_state['tickets_created']):
                                 if t['id'] == ticket['id']:
                                     analysis_state['tickets_created'][i]['status'] = "Resolved"
+                                    analysis_state['tickets_created'][i]['resolution_log'] = resolution_log_content
                                     break
                                     
                             # Create a completion step
@@ -312,7 +315,7 @@ def analyze(filename):
                             # Append to the ticket
                             ticket_service.append_to_ticket(
                                 ticket['id'], 
-                                f"Ticket {ticket['id']} resolved by Resolution Agent. Output: {len(stdout_lines)} lines."
+                                f"Ticket {ticket['id']} resolved by Resolution Agent. Full log available in ticket details."
                             )
                             print(f"[DEBUG] Resolution agent completed and ticket {ticket['id']} marked as resolved")
                         else:

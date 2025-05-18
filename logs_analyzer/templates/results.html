@@ -81,6 +81,27 @@
                                     </div>
                                 </div>
                                 {% endif %}
+                                <div class="mt-3 resolution-steps-container" id="resolution-steps-{{ ticket.id }}" style="display: none;">
+                                    <h6><i class="fas fa-shoe-prints me-2"></i>Resolution Steps</h6>
+                                    <div class="accordion" id="resolutionAccordion-{{ ticket.id }}">
+                                        <div class="accordion-item">
+                                            <h2 class="accordion-header" id="resolutionHeading-{{ ticket.id }}">
+                                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" 
+                                                        data-bs-target="#resolutionCollapse-{{ ticket.id }}" 
+                                                        aria-expanded="false" aria-controls="resolutionCollapse-{{ ticket.id }}">
+                                                    Show/Hide Raw Output
+                                                </button>
+                                            </h2>
+                                            <div id="resolutionCollapse-{{ ticket.id }}" class="accordion-collapse collapse" 
+                                                 aria-labelledby="resolutionHeading-{{ ticket.id }}" 
+                                                 data-bs-parent="#resolutionAccordion-{{ ticket.id }}">
+                                                <div class="accordion-body">
+                                                    <pre class="resolution-log-content">Awaiting resolution data...</pre>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                         {% endfor %}
@@ -220,7 +241,7 @@
         // --- Helper function to render a single KB entry ---
         function renderKBEntry(kb_entry, ticket_id, index) {
             if (!kb_entry) return '';
-            const entryId = `kb-${ticket_id}-${kb_entry.id || index}`;
+            const entryId = `kb-${ticket_id}-${kb_entry.id || ('entry-' + index)}`;
             const collapseId = `collapse-${entryId}`;
             const headingId = `heading-${entryId}`;
             let tagsHtml = '';
@@ -289,6 +310,7 @@
             const cardId = `ticket-card-${ticket.id}`;
             const priorityBadgeClass = getPriorityBadgeClass(ticket.priority);
             const statusClass = ticket.status === 'Open' ? 'status-open' : ticket.status === 'Resolved' ? 'status-resolved' : '';
+            const resolutionLogHtml = ticket.resolution_log ? ticket.resolution_log.replace(/</g, "&lt;").replace(/>/g, "&gt;") : 'Awaiting resolution data...';
             
             const cardHtml = `
                 <div class="card mb-3 ticket-card ${ticket.status === 'Resolved' ? 'border-success' : ''}" id="${cardId}">
@@ -323,6 +345,27 @@
                         <div class="mt-3 kb-section-container" id="kb-section-${ticket.id}">
                             <!-- KB will be rendered here by renderOrUpdateKBSection -->
                         </div>
+                        <div class="mt-3 resolution-steps-container" id="resolution-steps-${ticket.id}" ${ticket.resolution_log ? '' : 'style="display: none;"'}>
+                            <h6><i class="fas fa-shoe-prints me-2"></i>Resolution Steps</h6>
+                            <div class="accordion" id="resolutionAccordion-${ticket.id}">
+                                <div class="accordion-item">
+                                    <h2 class="accordion-header" id="resolutionHeading-${ticket.id}">
+                                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" 
+                                                data-bs-target="#resolutionCollapse-${ticket.id}" 
+                                                aria-expanded="false" aria-controls="resolutionCollapse-${ticket.id}">
+                                            Show/Hide Raw Output
+                                        </button>
+                                    </h2>
+                                    <div id="resolutionCollapse-${ticket.id}" class="accordion-collapse collapse" 
+                                         aria-labelledby="resolutionHeading-${ticket.id}" 
+                                         data-bs-parent="#resolutionAccordion-${ticket.id}">
+                                        <div class="accordion-body">
+                                            <pre class="resolution-log-content">${resolutionLogHtml}</pre>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             `;
@@ -349,6 +392,23 @@
             }
             // Update KB
             renderOrUpdateKBSection(ticketCard, ticket);
+
+            // Update Resolution Steps
+            const resolutionStepsContainer = ticketCard.find(`#resolution-steps-${ticket.id}`);
+            const resolutionLogContentPre = resolutionStepsContainer.find('.resolution-log-content');
+            if (ticket.resolution_log) {
+                const escapedLog = ticket.resolution_log.replace(/</g, "&lt;").replace(/>/g, "&gt;");
+                if (resolutionLogContentPre.html() !== escapedLog) {
+                    resolutionLogContentPre.html(escapedLog);
+                }
+                if (resolutionStepsContainer.is(':hidden')) {
+                    resolutionStepsContainer.show();
+                }
+            } else {
+                if (!resolutionStepsContainer.is(':hidden')) {
+                   // resolutionStepsContainer.hide(); // Keep visible with "Awaiting data..."
+                }
+            }
         }
 
         // Function to add a new reasoning step to the UI (deduplicated)
