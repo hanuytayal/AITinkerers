@@ -122,33 +122,30 @@ class LogAnalysisAgent:
             # Prepare the prompt for OpenAI with reasoning best practices
             prompt = f"""Analyze these system logs to identify critical issues that require attention from oncall engineers.
 
-            Think through this step-by-step:
-            1. First, identify all ERROR and FATAL level log entries
-            2. Group them by service and message pattern
-            3. Count occurrences of each pattern
-            4. Filter to keep only FATAL issues with count >= 5
-            5. For each remaining issue, analyze the timestamps, pattern, and impact
-            6. Determine severity based on the log level and message content
-            7. Recommend specific actions based on the issue type
-            
-            FORMAT YOUR RESPONSE AS JSON with the following structure:
-            [
-                {{
-                    "issue_type": "string",
-                    "service": "string",
-                    "severity": "string",
-                    "first_seen": "timestamp",
-                    "last_seen": "timestamp",
-                    "count": number,
-                    "description": "string",
-                    "recommended_action": "string"
-                    "knowledge_sources":"string"
-                }}
-            ]
-            
-            Here are the logs:
-            {logs_text}
-            """
+PROBLEM: 
+I need to detect FATAL severity issues that occurred at least 5 times in these logs and create tickets for them.
+
+CONTEXT:
+- These are system logs from various services
+- We need to identify patterns of recurring critical failures
+- Only FATAL issues with 5+ occurrences need tickets
+- Engineers need clear information about the issue and recommended actions
+
+APPROACH:
+To solve this problem, I will:
+1. Identify all ERROR and FATAL level log entries
+2. Group these entries by service and message pattern
+3. Count occurrences of each unique error pattern
+4. Filter to keep only FATAL issues with count >= 5
+5. For each qualifying issue:
+   a. Determine first and last occurrence timestamps
+   b. Analyze the message content for root cause hints
+   c. Formulate appropriate recommended actions
+6. Create tickets for each critical issue (count >= 5)
+
+Here are the logs to analyze:
+{logs_text}
+"""
             
             self.add_reasoning_step("Analyzing logs...")
             
