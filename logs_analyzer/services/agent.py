@@ -173,7 +173,7 @@ class LogAnalysisAgent:
                 ],
                 tools=[create_ticket_tool],
                 tool_choice="auto",  # Allow model to choose when to use tools
-                reasoning={"summary": "auto"},  # Enable reasoning summaries
+                reasoning={"summary": "detailed"},  # Enable reasoning summaries
                 stream=True  # Enable streaming
             )
 
