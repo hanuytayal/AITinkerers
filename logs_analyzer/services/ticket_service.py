@@ -10,12 +10,21 @@ class KnowledgeBaseAgent:
     
     def __init__(self):
         """Initialize the knowledge base agent"""
-        # Get the absolute path to the data/playbooks directory
-        self.knowledge_base_path = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), 'data', 'playbooks')
-        self.knowledge_base = []
-        
-        # Scan and load actual playbooks from the directory
-        self._load_playbooks()
+        try:
+            # Get the absolute path to the data/playbooks directory
+            self.knowledge_base_path = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), 'data', 'playbooks')
+            print(f"[DEBUG] Knowledge base path: {self.knowledge_base_path}")
+            self.knowledge_base = []
+            
+            # Scan and load actual playbooks from the directory
+            self._load_playbooks()
+            print(f"[DEBUG] Loaded {len(self.knowledge_base)} knowledge base entries")
+        except Exception as e:
+            print(f"[ERROR] Error initializing KnowledgeBaseAgent: {e}")
+            self.knowledge_base = []
+            # Add placeholder data as fallback
+            self._add_placeholder_playbooks()
+            print(f"[DEBUG] Added {len(self.knowledge_base)} placeholder playbooks")
     
     def _load_playbooks(self):
         """Load playbooks from the knowledge base directory"""
@@ -124,6 +133,8 @@ class KnowledgeBaseAgent:
         # Simulate search delay
         time.sleep(0.5)
         
+        print(f"[DEBUG] Searching knowledge base for ticket {ticket.get('id', 'unknown')}")
+        
         # Extract search terms from the ticket
         search_terms = []
         
@@ -139,8 +150,12 @@ class KnowledgeBaseAgent:
             if "service" in issue:
                 search_terms.extend(issue["service"].lower().split())
         
+        print(f"[DEBUG] Extracted search terms: {search_terms}")
+        
         # Filter out common words and short terms
         filtered_terms = [term for term in search_terms if len(term) > 3 and term not in ["the", "and", "for", "with", "this", "that"]]
+        
+        print(f"[DEBUG] Filtered search terms: {filtered_terms}")
         
         # Find relevant knowledge base entries
         relevant_entries = []
@@ -170,13 +185,20 @@ class KnowledgeBaseAgent:
                 entry_copy["match_score"] = match_score
                 relevant_entries.append(entry_copy)
         
+        print(f"[DEBUG] Found {len(relevant_entries)} relevant entries")
+        
         # If no relevant entries found, return a random entry
         if not relevant_entries and self.knowledge_base:
-            return [random.choice(self.knowledge_base)]
+            random_entry = random.choice(self.knowledge_base)
+            print(f"[DEBUG] No relevant entries found, returning random entry: {random_entry.get('title')}")
+            return [random_entry]
         
         # Sort by match score and return top results (max 2)
         relevant_entries.sort(key=lambda x: x.get("match_score", 0), reverse=True)
-        return relevant_entries[:2]
+        result = relevant_entries[:2]
+        
+        print(f"[DEBUG] Returning top {len(result)} entries: {[entry.get('title') for entry in result]}")
+        return result
 
 
 class TicketService:
@@ -249,13 +271,24 @@ class TicketService:
         Args:
             ticket (dict): The ticket to augment
         """
-        # Find relevant knowledge base entries for this ticket
-        knowledge_entries = self.knowledge_agent.search_knowledge_base(ticket)
-        
-        # Add knowledge base entries to the ticket
-        ticket["knowledge_base"] = knowledge_entries
-        
-        return ticket
+        try:
+            print(f"[DEBUG] Augmenting ticket {ticket.get('id')} with knowledge base information")
+            
+            # Find relevant knowledge base entries for this ticket
+            knowledge_entries = self.knowledge_agent.search_knowledge_base(ticket)
+            
+            print(f"[DEBUG] Found {len(knowledge_entries)} knowledge entries for ticket {ticket.get('id')}")
+            
+            # Add knowledge base entries to the ticket
+            ticket["knowledge_base"] = knowledge_entries
+            
+            print(f"[DEBUG] Successfully augmented ticket {ticket.get('id')}")
+            return ticket
+        except Exception as e:
+            print(f"[ERROR] Error augmenting ticket with knowledge: {e}")
+            # Make sure the knowledge_base field exists even if empty
+            ticket["knowledge_base"] = []
+            return ticket
     
     def _assign_engineer(self, service):
         """

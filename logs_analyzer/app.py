@@ -135,29 +135,38 @@ def analyze(filename):
             tickets = []
             if final_issues:
                 for issue in final_issues:
+                    # Create the ticket first
                     ticket = ticket_service.create_ticket(issue)
+                    # Add ticket to the tickets list immediately
                     tickets.append(ticket)
                     
-                    # Add a reasoning step for knowledge base augmentation
-                    if "knowledge_base" in ticket and ticket["knowledge_base"]:
-                        kb_entries = ticket["knowledge_base"]
-                        kb_titles = [entry.get("title", "Untitled") for entry in kb_entries]
-                        kb_links = [entry.get("link", "") for entry in kb_entries]
-                        
-                        # Create a more detailed message
-                        kb_reasoning = f"Knowledge Base Agent found {len(kb_entries)} relevant document(s) for ticket {ticket['id']}:"
-                        for i, (title, link) in enumerate(zip(kb_titles, kb_links)):
-                            kb_reasoning += f"\n- {title} ({link})"
-                        
-                        kb_step = {
-                            "timestamp": datetime.now().isoformat(),
-                            "content": kb_reasoning,
-                            "type": "agent_state"
-                        }
-                        analysis_state['reasoning_steps'].append(kb_step)
-                        reasoning_stream.put(kb_step)
-                        
-            analysis_state['tickets_created'] = tickets
+                    # Process knowledge base information separately
+                    try:
+                        if "knowledge_base" in ticket and ticket["knowledge_base"]:
+                            kb_entries = ticket["knowledge_base"]
+                            kb_titles = [entry.get("title", "Untitled") for entry in kb_entries]
+                            kb_links = [entry.get("link", "") for entry in kb_entries]
+                            
+                            # Create a more detailed message
+                            kb_reasoning = f"Knowledge Base Agent found {len(kb_entries)} relevant document(s) for ticket {ticket['id']}:"
+                            for i, (title, link) in enumerate(zip(kb_titles, kb_links)):
+                                kb_reasoning += f"\n- {title} ({link})"
+                            
+                            kb_step = {
+                                "timestamp": datetime.now().isoformat(),
+                                "content": kb_reasoning,
+                                "type": "agent_state"
+                            }
+                            analysis_state['reasoning_steps'].append(kb_step)
+                            reasoning_stream.put(kb_step)
+                            print(f"[DEBUG] Added KB step for ticket {ticket['id']}")
+                    except Exception as e:
+                        print(f"[ERROR] Knowledge base processing error: {e}")
+                
+                # Update the global state with all tickets
+                analysis_state['tickets_created'] = tickets
+                print(f"[DEBUG] Added {len(tickets)} tickets to analysis_state")
+            
             print("[DEBUG] run_analysis completed")
         finally:
             analysis_running = False
