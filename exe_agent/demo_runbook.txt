@@ -32,7 +32,6 @@ Docker Status:
 
 Memory Usage:
     Check System Memory
-    ACTION: cli command="top -l 1 | head -n 10"
 
 Network Check:
     Ping Google
@@ -51,7 +50,6 @@ News Check:
 Database Issue Investigation:
     Check System Resources:
         Check Memory Usage
-        ACTION: cli command="timeout 5 top -l 1 -n 5 | head -n 10"
         ACTION: screenshot name_prefix="memory_status"
         
         Check Disk Space
@@ -93,7 +91,6 @@ Database Issue Investigation:
         ACTION: cli command="echo '=== Database Investigation Results ===' > investigation_results.txt"
         ACTION: cli command="date >> investigation_results.txt"
         ACTION: cli command="echo '\n=== System Status ===' >> investigation_results.txt"
-        ACTION: cli command="timeout 5 top -l 1 -n 5 | head -n 10 >> investigation_results.txt"
         ACTION: cli command="echo '\n=== Database Status ===' >> investigation_results.txt"
         ACTION: cli command="timeout 5 docker ps | grep postgres >> investigation_results.txt || echo 'No postgres container found' >> investigation_results.txt"
         ACTION: cli command="echo '\n=== Investigation Complete ===' >> investigation_results.txt"
