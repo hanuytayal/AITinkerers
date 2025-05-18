@@ -1,90 +1,22 @@
 Check System Status:
     Check GitHub Status
     ACTION: go_to url=https://www.githubstatus.com/
-    ACTION: get_text selector=".status-day .description"
-
-Search Documentation:
-    Search Python Documentation
-    ACTION: go_to url=https://docs.python.org/3/
-    ACTION: search query="async functions" search_box_selector="#searchbox input[name='q']"
-    ACTION: screenshot name_prefix="python_search"
-
-System Information:
-    Check disk space
-    ACTION: cli command="df -h"
-
-GitHub Interaction:
-    Check GitHub Trending
-    ACTION: go_to url=https://github.com/trending
-    ACTION: get_text selector=".Box article:first-child"
-    ACTION: screenshot name_prefix="github_trending"
-
-Search NPM Packages:
-    Search React Packages
-    ACTION: go_to url=https://www.npmjs.com/
-    ACTION: search query="react state management" search_box_selector="#search"
-    ACTION: screenshot name_prefix="npm_search"
-
-Docker Status:
-    Check Docker Status
-    ACTION: cli command="docker ps"
-    ACTION: cli command="docker images"
-
-Memory Usage:
-    Check System Memory
-
-Network Check:
-    Ping Google
-    ACTION: cli command="ping -c 4 google.com"
-
-GitHub API Check:
-    Get GitHub Rate Limits
-    ACTION: api method=get url=https://api.github.com/rate_limit
-
-News Check:
-    Check Hacker News
-    ACTION: go_to url=https://news.ycombinator.com
-    ACTION: get_text selector=".titlelink:first-child"
-    ACTION: screenshot name_prefix="hackernews"
+    ACTION: get_text selector="body"  # Get all visible text for reliability
 
 Database Issue Investigation:
     Check System Resources:
-        Check Memory Usage
-        ACTION: screenshot name_prefix="memory_status"
-        
         Check Disk Space
-        ACTION: cli command="timeout 5 df -h | head -n 10"
+        ACTION: cli command="df -h"
         ACTION: screenshot name_prefix="disk_status"
 
     Check Database Status:
         Check Docker Container Status
-        ACTION: cli command="timeout 5 docker ps | grep postgres || true"
+        ACTION: cli command="docker ps | grep postgres || true"
         ACTION: screenshot name_prefix="db_container_status"
         
         Check Database Logs
-        ACTION: cli command="timeout 5 docker logs $(docker ps -q --filter 'name=postgres' --latest 2>/dev/null) --tail 20 2>/dev/null || echo 'No postgres container found'"
+        ACTION: cli command="docker logs $(docker ps -q --filter 'name=postgres' --latest 2>/dev/null) --tail 20 2>/dev/null || echo 'No postgres container found'"
         ACTION: screenshot name_prefix="db_logs"
-
-    Check Database Metrics:
-        Get Connection Count
-        ACTION: cli command="timeout 5 docker exec $(docker ps -q --filter 'name=postgres' --latest 2>/dev/null) psql -U postgres -c 'SELECT count(*) FROM pg_stat_activity;' 2>/dev/null || echo 'No postgres container found'"
-        
-        Check Transaction Status
-        ACTION: cli command="timeout 5 docker exec $(docker ps -q --filter 'name=postgres' --latest 2>/dev/null) psql -U postgres -c 'SELECT state, count(*) FROM pg_stat_activity GROUP BY state;' 2>/dev/null || echo 'No postgres container found'"
-
-    Search Known Issues:
-        Check PostgreSQL Documentation
-        ACTION: go_to url=https://www.postgresql.org/docs/current/
-        ACTION: search query="connection pooling best practices" search_box_selector=".searchbox"
-        ACTION: screenshot name_prefix="postgres_docs"
-
-    Resolve Issues:
-        Restart Database Container
-        ACTION: cli command="timeout 10 docker restart $(docker ps -q --filter 'name=postgres' --latest 2>/dev/null) || echo 'No postgres container found'"
-        
-        Verify Database Recovery
-        ACTION: cli command="timeout 5 docker exec $(docker ps -q --filter 'name=postgres' --latest 2>/dev/null) pg_isready 2>/dev/null || echo 'No postgres container found'"
-        ACTION: screenshot name_prefix="db_recovery"
 
     Document Results:
         Export Diagnostic Information
@@ -92,7 +24,7 @@ Database Issue Investigation:
         ACTION: cli command="date >> investigation_results.txt"
         ACTION: cli command="echo '\n=== System Status ===' >> investigation_results.txt"
         ACTION: cli command="echo '\n=== Database Status ===' >> investigation_results.txt"
-        ACTION: cli command="timeout 5 docker ps | grep postgres >> investigation_results.txt || echo 'No postgres container found' >> investigation_results.txt"
+        ACTION: cli command="docker ps | grep postgres >> investigation_results.txt || echo 'No postgres container found' >> investigation_results.txt"
         ACTION: cli command="echo '\n=== Investigation Complete ===' >> investigation_results.txt"
         
         Save Screenshots
