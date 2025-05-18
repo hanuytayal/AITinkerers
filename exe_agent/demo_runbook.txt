@@ -1,17 +1,17 @@
-Check System Status:
-    Check GitHub Status
-    ACTION: go_to url=https://www.githubstatus.com/
-
 Database Issue Investigation:
+    Check Git Status:
+        ACTION: go_to url=https://www.githubstatus.com/
+        ACTION: get_text selector="body"
+
     Check System Resources:
         ACTION: cli command="df -h"
-        ACTION: screenshot name_prefix="disk_status"
+        # Screenshot step removed
 
     Check Database Status:
         ACTION: cli command="docker ps | grep postgres || true"
-        ACTION: screenshot name_prefix="db_container_status"
+        # Screenshot step removed
         ACTION: cli command="docker logs $(docker ps -q --filter 'name=postgres' --latest 2>/dev/null) --tail 20 2>/dev/null || echo 'No postgres container found'"
-        ACTION: screenshot name_prefix="db_logs"
+        # Screenshot step removed
 
     Document Results:
         ACTION: cli command="echo '=== Database Investigation Results ===' > investigation_results.txt && date >> investigation_results.txt && echo '\n=== System Status ===' >> investigation_results.txt && echo '\n=== Database Status ===' >> investigation_results.txt && docker ps | grep postgres >> investigation_results.txt || echo 'No postgres container found' >> investigation_results.txt && echo '\n=== Investigation Complete ===' >> investigation_results.txt"

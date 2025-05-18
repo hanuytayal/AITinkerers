@@ -166,13 +166,11 @@ class BrowserUseAgent:
                 if not line.startswith('ACTION:') and not line.startswith('    ACTION:') and not line.startswith(' '):
                     current_step = line.strip(':')
                     print(f"\n=== Step: {current_step} ===")
-                    # Close browser at the end of a web step
+                    time.sleep(1)  # Reduced sleep for demo pacing
                     if browser_opened and current_driver:
                         current_driver.quit()
                         current_driver = None
                         browser_opened = False
-                    # Add sleep to allow demo viewers to see the step
-                    time.sleep(2)
                 elif 'ACTION:' in line:
                     action_line = line.split('ACTION:')[1].strip()
                     parts = action_line.split()
@@ -191,14 +189,14 @@ class BrowserUseAgent:
                             else:
                                 current_driver.get(params['url'])
                                 self.current_url = params['url']
-                            time.sleep(2)
+                            time.sleep(1)
                         elif action == 'get_text':
                             text = self.get_text(params['selector'], current_driver)
                             print(f"[Runbook] Text from {params['selector']}:\n{text}\n")
-                            time.sleep(2)
+                            time.sleep(1)
                         elif action == 'screenshot':
                             self.screenshot(params.get('name_prefix', 'screenshot'), current_driver)
-                            time.sleep(2)
+                            time.sleep(1)
                         else:
                             if browser_opened and current_driver:
                                 current_driver.quit()
@@ -206,12 +204,12 @@ class BrowserUseAgent:
                                 browser_opened = False
                             if action == 'cli':
                                 self.run_cli(params['command'])
-                                time.sleep(2)
+                                time.sleep(1)
                             elif action == 'api':
                                 method = params.get('method', 'get')
                                 url = params['url']
                                 self.call_api(method, url)
-                                time.sleep(2)
+                                time.sleep(1)
                     except Exception as e:
                         print(f"[ERROR] Failed to execute action '{action}' in step '{current_step}': {e}")
                         if browser_opened and current_driver:
