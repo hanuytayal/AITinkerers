@@ -49,6 +49,38 @@
                                         </div>
                                     </div>
                                 </div>
+                                
+                                {% if ticket.knowledge_base %}
+                                <div class="mt-3">
+                                    <h6><i class="fas fa-book-open me-2"></i>Knowledge Base References</h6>
+                                    <div class="accordion" id="knowledgeAccordion-{{ ticket.id }}">
+                                        {% for kb_entry in ticket.knowledge_base %}
+                                        <div class="accordion-item">
+                                            <h2 class="accordion-header" id="heading-{{ ticket.id }}-{{ kb_entry.id }}">
+                                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" 
+                                                        data-bs-target="#collapse-{{ ticket.id }}-{{ kb_entry.id }}" 
+                                                        aria-expanded="false" aria-controls="collapse-{{ ticket.id }}-{{ kb_entry.id }}">
+                                                    {{ kb_entry.title }}
+                                                </button>
+                                            </h2>
+                                            <div id="collapse-{{ ticket.id }}-{{ kb_entry.id }}" class="accordion-collapse collapse" 
+                                                 aria-labelledby="heading-{{ ticket.id }}-{{ kb_entry.id }}" 
+                                                 data-bs-parent="#knowledgeAccordion-{{ ticket.id }}">
+                                                <div class="accordion-body">
+                                                    <p>{{ kb_entry.content }}</p>
+                                                    <p class="mt-2 mb-0"><small class="text-muted">
+                                                        <strong>Source:</strong> <code>{{ kb_entry.link }}</code><br>
+                                                        <strong>Tags:</strong> {% for tag in kb_entry.tags %}
+                                                            <span class="badge bg-secondary">{{ tag }}</span>
+                                                        {% endfor %}
+                                                    </small></p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                                {% endif %}
                             </div>
                         </div>
                         {% endfor %}
@@ -169,6 +201,7 @@
         var lastTicketCount = initialState.tickets_created ? initialState.tickets_created.length : 0;
         var renderedStepIds = new Set();
         var hasReceivedSummary = false; // Track if a summary has been received
+        var hasEndBubble = false; // Track if end bubble is already displayed
 
         // Function to add a new reasoning step to the UI (deduplicated)
         function addReasoningStep(step) {
@@ -204,6 +237,11 @@
                 stepTypeClass = 'bg-light border-danger';
                 stepIcon = '<i class="fas fa-exclamation-triangle me-2 text-danger"></i>';
                 stepTitle = 'Error';
+            } else if (step.type === 'agent_state') {
+                stepTypeClass = 'bg-light border-info';
+                stepIcon = '<i class="fas fa-robot me-2 text-info"></i>';
+                stepTitle = 'Agent State';
+                contentClass = 'fst-italic';
             } else {
                 stepIcon = '<i class="fas fa-cog me-2"></i>';
             }
@@ -236,15 +274,44 @@
             // Check if initial state already has a summary step
             hasReceivedSummary = initialState.reasoning_steps.some(step => step.type === 'summary');
             
+            // Add agent start bubble if not already present
+            var hasStartBubble = initialState.reasoning_steps.some(step => 
+                step.type === 'agent_state' && step.content.includes('Agent started analyzing'));
+            
+            if (!hasStartBubble) {
+                var startStep = {
+                    timestamp: new Date().toISOString(),
+                    content: "Agent started analyzing logs...",
+                    type: "agent_state"
+                };
+                addReasoningStep(startStep);
+            }
+            
+            // Display existing steps
             initialState.reasoning_steps.forEach(function(step) {
                 addReasoningStep(step);
             });
+            
+            // Check if analysis is complete (tickets exist)
+            if (initialState.tickets_created && initialState.tickets_created.length > 0 && !hasEndBubble) {
+                hasEndBubble = true;
+                var endStep = {
+                    timestamp: new Date().toISOString(),
+                    content: "Analysis complete. Created " + initialState.tickets_created.length + " ticket(s).",
+                    type: "agent_state"
+                };
+                addReasoningStep(endStep);
+            }
         } else {
-            reasoningContainer.append(`
-                <div class="alert alert-warning">
-                    No reasoning steps available yet.
-                </div>
-            `);
+            reasoningContainer.empty();
+            
+            // Add agent start bubble
+            var startStep = {
+                timestamp: new Date().toISOString(),
+                content: "Agent started analyzing logs...",
+                type: "agent_state"
+            };
+            addReasoningStep(startStep);
         }
 
         // Only start polling and SSE if there are no tickets yet
@@ -275,10 +342,35 @@
                 $.getJSON('/api/state', function(state) {
                     if (state && state.tickets_created) {
                         if (state.tickets_created.length > lastTicketCount) {
+                            // Add completion bubble before reload if tickets were created
+                            if (state.tickets_created.length > 0 && !hasEndBubble) {
+                                hasEndBubble = true;
+                                var endStep = {
+                                    timestamp: new Date().toISOString(),
+                                    content: "Analysis complete. Created " + state.tickets_created.length + " ticket(s).",
+                                    type: "agent_state"
+                                };
+                                addReasoningStep(endStep);
+                                // Short delay before reload to show the completion message
+                                setTimeout(function() {
+                                    window.location.reload();
+                                }, 1000);
+                                return;
+                            }
                             window.location.reload();
                         }
                         // If at least one ticket exists, stop polling and close SSE
                         if (state.tickets_created.length > 0) {
+                            // Add completion bubble if not already added
+                            if (!hasEndBubble) {
+                                hasEndBubble = true;
+                                var endStep = {
+                                    timestamp: new Date().toISOString(),
+                                    content: "Analysis complete. Created " + state.tickets_created.length + " ticket(s).",
+                                    type: "agent_state"
+                                };
+                                addReasoningStep(endStep);
+                            }
                             clearInterval(pollingInterval);
                             if (eventSource) {
                                 eventSource.close();

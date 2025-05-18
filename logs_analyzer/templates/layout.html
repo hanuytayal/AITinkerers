@@ -24,6 +24,26 @@
         .analyzing-logs-spinner .fa-spinner {
             animation-duration: 1.5s;
         }
+        
+        /* Styles for agent state bubbles */
+        .list-group-item[class*="border-info"] {
+            border-width: 2px !important;
+            border-style: dashed !important;
+        }
+        
+        .list-group-item .fa-robot {
+            color: #0dcaf0;
+        }
+        
+        /* Fade in animation for new bubbles */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .list-group-item {
+            animation: fadeIn 0.3s ease-in-out;
+        }
     </style>
     
     {% block head %}{% endblock %}
