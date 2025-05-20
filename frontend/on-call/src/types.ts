@@ -3,9 +3,9 @@ export interface Task {
   title: string;
   description: string;
   summary: string;
-  priority: 'low' | 'medium' | 'high';
-  status: 'To Do' | 'In Progress' | 'Done';
-  assignee: 'AI' | 'Human' | undefined;
+  priority: "low" | "medium" | "high";
+  status: "To Do" | "In Progress" | "Done";
+  assignee: "AI" | "Human" | undefined;
   dueDate?: string;
 }
 
@@ -23,4 +23,4 @@ export interface Board {
     [key: string]: Column;
   };
   columnOrder: string[];
-} 
+}

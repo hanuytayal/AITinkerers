@@ -1,6 +1,6 @@
-import React from 'react';
-import styled from 'styled-components';
-import { Task } from '../types';
+import React from "react";
+import styled from "styled-components";
+import { Task } from "../types";
 
 interface TaskDetailModalProps {
   task: Task;
@@ -101,54 +101,64 @@ const MetaValue = styled.div`
   font-weight: 500;
 `;
 
-const Status = styled.span<{ status: 'To Do' | 'In Progress' | 'Done' }>`
+const Status = styled.span<{ status: "To Do" | "In Progress" | "Done" }>`
   padding: 3px 8px;
   border-radius: 4px;
   font-size: 12px;
   font-weight: 500;
-  background-color: ${props => {
+  background-color: ${(props) => {
     switch (props.status) {
-      case 'To Do':
-        return '#dfe1e6';
-      case 'In Progress':
-        return '#deebff';
-      case 'Done':
-        return '#e3fcef';
+      case "To Do":
+        return "#dfe1e6";
+      case "In Progress":
+        return "#deebff";
+      case "Done":
+        return "#e3fcef";
       default:
-        return '#dfe1e6';
+        return "#dfe1e6";
     }
   }};
-  color: ${props => {
+  color: ${(props) => {
     switch (props.status) {
-      case 'To Do':
-        return '#42526e';
-      case 'In Progress':
-        return '#0052cc';
-      case 'Done':
-        return '#006644';
+      case "To Do":
+        return "#42526e";
+      case "In Progress":
+        return "#0052cc";
+      case "Done":
+        return "#006644";
       default:
-        return '#42526e';
+        return "#42526e";
     }
   }};
 `;
 
-const Assignee = styled.span<{ assignee: 'AI' | 'Human' | undefined }>`
+const Assignee = styled.span<{ assignee: "AI" | "Human" | undefined }>`
   padding: 3px 8px;
   border-radius: 4px;
   font-size: 12px;
   font-weight: 500;
-  background-color: ${props => 
-    props.assignee === 'AI' ? '#ffe2d9' : 
-    props.assignee === 'Human' ? '#d3f1fd' : '#dfe1e6'};
-  color: ${props => 
-    props.assignee === 'AI' ? '#b93800' : 
-    props.assignee === 'Human' ? '#0065b3' : '#42526e'};
+  background-color: ${(props) =>
+    props.assignee === "AI"
+      ? "#ffe2d9"
+      : props.assignee === "Human"
+        ? "#d3f1fd"
+        : "#dfe1e6"};
+  color: ${(props) =>
+    props.assignee === "AI"
+      ? "#b93800"
+      : props.assignee === "Human"
+        ? "#0065b3"
+        : "#42526e"};
 `;
 
 const formatDate = (dateString?: string) => {
-  if (!dateString) return '-';
+  if (!dateString) return "-";
   const date = new Date(dateString);
-  return date.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+  return date.toLocaleDateString("en-US", {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+  });
 };
 
 const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ task, onClose }) => {
@@ -180,7 +190,9 @@ const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ task, onClose }) => {
           <MetaItem>
             <MetaLabel>Assignee</MetaLabel>
             <MetaValue>
-              <Assignee assignee={task.assignee}>{task.assignee || '-'}</Assignee>
+              <Assignee assignee={task.assignee}>
+                {task.assignee || "-"}
+              </Assignee>
             </MetaValue>
           </MetaItem>
           <MetaItem>
@@ -203,4 +215,4 @@ const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ task, onClose }) => {
   );
 };
 
-export default TaskDetailModal; 
+export default TaskDetailModal;

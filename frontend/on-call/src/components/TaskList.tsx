@@ -1,8 +1,8 @@
-import React, { useState } from 'react';
-import styled from 'styled-components';
-import { initialData } from '../data';
-import { Task as TaskType } from '../types';
-import TaskDetailModal from './TaskDetailModal';
+import React, { useState } from "react";
+import styled from "styled-components";
+import { initialData } from "../data";
+import { Task as TaskType } from "../types";
+import TaskDetailModal from "./TaskDetailModal";
 
 const Container = styled.div`
   padding: 20px;
@@ -50,59 +50,69 @@ const TableCell = styled.td`
   color: #172b4d;
 `;
 
-const Status = styled.span<{ status: 'To Do' | 'In Progress' | 'Done' }>`
+const Status = styled.span<{ status: "To Do" | "In Progress" | "Done" }>`
   padding: 3px 8px;
   border-radius: 4px;
   font-size: 12px;
   font-weight: 500;
-  background-color: ${props => {
+  background-color: ${(props) => {
     switch (props.status) {
-      case 'To Do':
-        return '#dfe1e6';
-      case 'In Progress':
-        return '#deebff';
-      case 'Done':
-        return '#e3fcef';
+      case "To Do":
+        return "#dfe1e6";
+      case "In Progress":
+        return "#deebff";
+      case "Done":
+        return "#e3fcef";
       default:
-        return '#dfe1e6';
+        return "#dfe1e6";
     }
   }};
-  color: ${props => {
+  color: ${(props) => {
     switch (props.status) {
-      case 'To Do':
-        return '#42526e';
-      case 'In Progress':
-        return '#0052cc';
-      case 'Done':
-        return '#006644';
+      case "To Do":
+        return "#42526e";
+      case "In Progress":
+        return "#0052cc";
+      case "Done":
+        return "#006644";
       default:
-        return '#42526e';
+        return "#42526e";
     }
   }};
 `;
 
-const Assignee = styled.span<{ assignee: 'AI' | 'Human' | undefined }>`
+const Assignee = styled.span<{ assignee: "AI" | "Human" | undefined }>`
   padding: 3px 8px;
   border-radius: 4px;
   font-size: 12px;
   font-weight: 500;
-  background-color: ${props => 
-    props.assignee === 'AI' ? '#ffe2d9' : 
-    props.assignee === 'Human' ? '#d3f1fd' : '#dfe1e6'};
-  color: ${props => 
-    props.assignee === 'AI' ? '#b93800' : 
-    props.assignee === 'Human' ? '#0065b3' : '#42526e'};
+  background-color: ${(props) =>
+    props.assignee === "AI"
+      ? "#ffe2d9"
+      : props.assignee === "Human"
+        ? "#d3f1fd"
+        : "#dfe1e6"};
+  color: ${(props) =>
+    props.assignee === "AI"
+      ? "#b93800"
+      : props.assignee === "Human"
+        ? "#0065b3"
+        : "#42526e"};
 `;
 
 const formatDate = (dateString?: string) => {
-  if (!dateString) return '-';
+  if (!dateString) return "-";
   const date = new Date(dateString);
-  return date.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+  return date.toLocaleDateString("en-US", {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+  });
 };
 
 const TaskList: React.FC = () => {
   const [selectedTask, setSelectedTask] = useState<TaskType | null>(null);
-  
+
   // Convert tasks object to array
   const tasks = Object.values(initialData.tasks);
 
@@ -128,7 +138,7 @@ const TaskList: React.FC = () => {
           </HeaderRow>
         </TableHead>
         <tbody>
-          {tasks.map(task => (
+          {tasks.map((task) => (
             <TableRow key={task.id} onClick={() => handleTaskClick(task)}>
               <TableCell>{task.title}</TableCell>
               <TableCell>{task.summary}</TableCell>
@@ -136,7 +146,9 @@ const TaskList: React.FC = () => {
                 <Status status={task.status}>{task.status}</Status>
               </TableCell>
               <TableCell>
-                <Assignee assignee={task.assignee}>{task.assignee || '-'}</Assignee>
+                <Assignee assignee={task.assignee}>
+                  {task.assignee || "-"}
+                </Assignee>
               </TableCell>
               <TableCell>{formatDate(task.dueDate)}</TableCell>
               <TableCell>{task.priority}</TableCell>
@@ -144,7 +156,7 @@ const TaskList: React.FC = () => {
           ))}
         </tbody>
       </Table>
-      
+
       {selectedTask && (
         <TaskDetailModal task={selectedTask} onClose={handleCloseModal} />
       )}
@@ -152,4 +164,4 @@ const TaskList: React.FC = () => {
   );
 };
 
-export default TaskList; 
+export default TaskList;

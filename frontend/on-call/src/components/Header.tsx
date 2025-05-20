@@ -1,5 +1,5 @@
-import React from 'react';
-import styled from 'styled-components';
+import React from "react";
+import styled from "styled-components";
 
 const Container = styled.div`
   background-color: #0052cc;
@@ -25,7 +25,7 @@ const NavItem = styled.div`
   padding: 8px 12px;
   border-radius: 3px;
   transition: background-color 0.2s ease;
-  
+
   &:hover {
     background-color: rgba(255, 255, 255, 0.1);
   }
@@ -45,4 +45,4 @@ const Header: React.FC = () => {
   );
 };
 
-export default Header; 
+export default Header;

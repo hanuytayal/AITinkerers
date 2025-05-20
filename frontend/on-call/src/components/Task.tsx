@@ -1,7 +1,7 @@
-import React from 'react';
-import styled from 'styled-components';
-import { Draggable } from 'react-beautiful-dnd';
-import { Task as TaskType } from '../types';
+import React from "react";
+import styled from "styled-components";
+import { Draggable } from "react-beautiful-dnd";
+import { Task as TaskType } from "../types";
 
 interface TaskProps {
   task: TaskType;
@@ -13,8 +13,9 @@ const Container = styled.div<{ isDragging: boolean }>`
   border-radius: 3px;
   padding: 12px;
   margin-bottom: 8px;
-  background-color: ${props => (props.isDragging ? '#e6fcff' : 'white')};
-  box-shadow: ${props => (props.isDragging ? '0px 2px 5px rgba(0,0,0,0.2)' : 'none')};
+  background-color: ${(props) => (props.isDragging ? "#e6fcff" : "white")};
+  box-shadow: ${(props) =>
+    props.isDragging ? "0px 2px 5px rgba(0,0,0,0.2)" : "none"};
 `;
 
 const Title = styled.h3`
@@ -35,31 +36,31 @@ const Meta = styled.div`
   font-size: 12px;
 `;
 
-const Priority = styled.span<{ priority: 'low' | 'medium' | 'high' }>`
+const Priority = styled.span<{ priority: "low" | "medium" | "high" }>`
   padding: 2px 6px;
   border-radius: 3px;
-  background-color: ${props => {
+  background-color: ${(props) => {
     switch (props.priority) {
-      case 'high':
-        return '#ffebe6';
-      case 'medium':
-        return '#fffae6';
-      case 'low':
-        return '#e3fcef';
+      case "high":
+        return "#ffebe6";
+      case "medium":
+        return "#fffae6";
+      case "low":
+        return "#e3fcef";
       default:
-        return '#f4f5f7';
+        return "#f4f5f7";
     }
   }};
-  color: ${props => {
+  color: ${(props) => {
     switch (props.priority) {
-      case 'high':
-        return '#cb2431';
-      case 'medium':
-        return '#b38600';
-      case 'low':
-        return '#006644';
+      case "high":
+        return "#cb2431";
+      case "medium":
+        return "#b38600";
+      case "low":
+        return "#006644";
       default:
-        return '#555';
+        return "#555";
     }
   }};
 `;
@@ -88,4 +89,4 @@ const Task: React.FC<TaskProps> = ({ task, index }) => {
   );
 };
 
-export default Task; 
+export default Task;

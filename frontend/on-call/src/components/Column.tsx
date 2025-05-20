@@ -1,8 +1,8 @@
-import React from 'react';
-import styled from 'styled-components';
-import { Droppable } from 'react-beautiful-dnd';
-import Task from './Task';
-import { Column as ColumnType, Task as TaskType } from '../types';
+import React from "react";
+import styled from "styled-components";
+import { Droppable } from "react-beautiful-dnd";
+import Task from "./Task";
+import { Column as ColumnType, Task as TaskType } from "../types";
 
 interface ColumnProps {
   column: ColumnType;
@@ -31,7 +31,8 @@ const TaskList = styled.div<{ isDraggingOver: boolean }>`
   padding: 8px;
   flex-grow: 1;
   min-height: 100px;
-  background-color: ${props => (props.isDraggingOver ? '#e6fcff' : '#f4f5f7')};
+  background-color: ${(props) =>
+    props.isDraggingOver ? "#e6fcff" : "#f4f5f7"};
   transition: background-color 0.2s ease;
 `;
 
@@ -57,4 +58,4 @@ const Column: React.FC<ColumnProps> = ({ column, tasks }) => {
   );
 };
 
-export default Column; 
+export default Column;
