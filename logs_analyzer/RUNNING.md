@@ -49,6 +49,17 @@
    cp env.example .env
    ```
    Then edit the `.env` file to add your API key.
+   
+   Additionally, for security, especially if running in any shared or non-development environment, set the `FLASK_SECRET_KEY`:
+   ```bash
+   # On macOS/Linux
+   export FLASK_SECRET_KEY='a_very_strong_and_unique_secret_key_here'
+   # On Windows (Command Prompt)
+   # set FLASK_SECRET_KEY=a_very_strong_and_unique_secret_key_here
+   # On Windows (PowerShell)
+   # $env:FLASK_SECRET_KEY='a_very_strong_and_unique_secret_key_here'
+   ```
+   Or add `FLASK_SECRET_KEY='your_secret_key'` to your `.env` file. A default key is used if this is not set, which is insecure for anything beyond local testing.
 
 ## Running the Application
 
@@ -116,3 +127,16 @@ http://127.0.0.1:5000
 ```
 
 You should see the Log Analysis Agent interface where you can upload log files for automated analysis.
+
+## Production Considerations (Important Warnings)
+
+- **WSGI Server**: The Flask development server (`python run.py` or `flask run`) is **not suitable for production use**. For deployment, use a production-grade WSGI server like Gunicorn or Waitress. Example with Gunicorn:
+  ```bash
+  gunicorn --workers 4 --bind 0.0.0.0:5000 run:app 
+  ```
+  *(Adjust `run:app` if your Flask application instance is named differently or located in a different file within your `run.py` or `app.py`)*.
+
+- **Critical Limitation - Global State & Scalability**: This application, in its current state, uses global variables within `app.py` to manage analysis state, progress, and results. This architecture makes it **unsuitable for running with multiple worker processes** (e.g., `gunicorn --workers 4` or any other multi-process WSGI setup). Each worker would have an independent copy of the application's state, leading to inconsistent user experiences, lost data between requests handled by different workers, and incorrect behavior.
+  - **Recommendation**: Before any production deployment that requires handling more than one request at a time or scaling beyond a single worker, the application requires significant architectural changes. This includes externalizing state management (e.g., using Redis, a database, or a proper task queue system like Celery) and ensuring inter-process communication for features like the reasoning stream. The refactoring to address these fundamental issues was not completed in prior tasks.
+
+- **File Storage**: Uploaded files and generated data (like `tickets.json`) are stored on the local filesystem. For production or scalable deployments (especially in containerized or ephemeral environments), consider using a shared, persistent storage solution (e.g., AWS S3, Google Cloud Storage, Azure Blob Storage).

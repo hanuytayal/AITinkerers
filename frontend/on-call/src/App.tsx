@@ -1,8 +1,8 @@
-import React from 'react';
-import styled from 'styled-components';
-import './App.css';
-import Header from './components/Header';
-import TaskList from './components/TaskList';
+import React from "react";
+import styled from "styled-components";
+import "./App.css";
+import Header from "./components/Header";
+import TaskList from "./components/TaskList";
 
 const Container = styled.div`
   display: flex;
