@@ -1,0 +1,26 @@
+# Git
+.git
+.gitignore
+
+# Python virtual environment
+.venv
+venv/
+ENV/
+env/
+*.pyc
+*__pycache__/
+.pytest_cache/
+
+# Local environment variables
+.env
+
+# IDE and OS specific
+.idea/
+.vscode/
+*.DS_Store
+
+# Uploads - these are typically mounted as volumes or handled by external storage in production
+# However, for simple self-contained demo, user might want them,
+# but for a production build, they should ideally be excluded.
+# For now, let's exclude them to encourage better practices.
+uploads/
