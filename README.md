@@ -32,6 +32,7 @@ This project demonstrates an automated troubleshooting workflow for system and d
    ```sh
    cd frontend/on-call && npm install && npm start
    ```
+   Note: All npm commands must be run from within the `frontend/on-call` directory.
 5. **Review results:**
    - Screenshots: `exe_agent/screenshots/` or `diagnostic_results/`
    - Diagnostic text: `investigation_results.txt`

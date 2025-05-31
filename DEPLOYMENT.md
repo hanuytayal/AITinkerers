@@ -90,6 +90,8 @@ For development and basic local running instructions, see `logs_analyzer/RUNNING
     cd frontend/on-call && npm run build
     ```
 
+**IMPORTANT:** All npm commands must be executed from within the `frontend/on-call` directory. Running npm commands from the project root will fail as there is no `package.json` file in the root directory.
+
 **Output:**
 Static files will be generated in the `frontend/on-call/build/` directory.
 
