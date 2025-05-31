@@ -8,10 +8,9 @@ This document provides a high-level overview of how to deploy the different comp
 
 **Setup & Dependencies:**
 
-1.  Navigate to the `exe_agent` directory.
-2.  Install Python dependencies:
+1.  Navigate to the `exe_agent` directory and install Python dependencies:
     ```bash
-    pip install -r exe_agent/requirements.txt
+    cd exe_agent && pip install -r requirements.txt
     ```
 
 **Key Deployment Considerations & Recommendations:**
@@ -39,12 +38,11 @@ This document provides a high-level overview of how to deploy the different comp
 
 **Setup & Dependencies:**
 
-1.  Navigate to the `logs_analyzer` directory.
-2.  Install Python dependencies:
+1.  Navigate to the `logs_analyzer` directory and install Python dependencies:
     ```bash
-    pip install -r logs_analyzer/requirements.txt
+    cd logs_analyzer && pip install -r requirements.txt
     ```
-3.  **Environment Variables:**
+2.  **Environment Variables:**
     *   Set up environment variables as defined in `logs_analyzer/env.example`.
     *   **Crucially, ensure `FLASK_SECRET_KEY` is set to a strong, unique value in your production environment.** This key is vital for session security. (It needs to be added to `env.example`).
     *   `OPENAI_API_KEY` is required for the AI agent functionality.
@@ -82,15 +80,14 @@ For development and basic local running instructions, see `logs_analyzer/RUNNING
 
 **Build Process:**
 
-1.  Navigate to the `frontend/on-call` directory.
-2.  Install dependencies:
+1.  Navigate to the `frontend/on-call` directory and install dependencies:
     ```bash
-    npm install 
+    cd frontend/on-call && npm install
     ``` 
     *(Note: `--legacy-peer-deps` might be needed due to `react-beautiful-dnd` compatibility with React 19, as identified in reviews).*
-3.  Build for production:
+2.  Build for production:
     ```bash
-    npm run build
+    cd frontend/on-call && npm run build
     ```
 
 **Output:**
@@ -111,4 +108,3 @@ The contents of the `build/` directory can be served by any static web server (e
     *   If backend integration is added, API URLs should be configured using environment variables (e.g., `REACT_APP_API_BASE_URL`) and documented.
 *   **Client-Side Routing (Future):**
     *   Currently, the application appears to be a single view. If more views/routes are added using React Router, the static server must be configured to redirect all non-asset requests to `index.html`.
-```

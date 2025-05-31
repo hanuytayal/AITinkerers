@@ -18,24 +18,19 @@ This project demonstrates an automated troubleshooting workflow for system and d
 ## How to Run the Demo
 1. **Install agent dependencies:**
    ```sh
-   cd exe_agent
-   pip install -r requirements.txt
+   cd exe_agent && pip install -r requirements.txt
    ```
 2. **Run the agent demo:**
    ```sh
-   python demo_run.py
+   cd exe_agent && python demo_run.py
    ```
 3. **Run the log analyzer backend:**
    ```sh
-   cd logs_analyzer
-   pip install -r requirements.txt
-   python run.py
+   cd logs_analyzer && pip install -r requirements.txt && python run.py
    ```
 4. **Run the frontend (on-call dashboard):**
    ```sh
-   cd frontend/on-call
-   npm install
-   npm start
+   cd frontend/on-call && npm install && npm start
    ```
 5. **Review results:**
    - Screenshots: `exe_agent/screenshots/` or `diagnostic_results/`
