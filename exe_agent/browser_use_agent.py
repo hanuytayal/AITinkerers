@@ -3,6 +3,7 @@ BrowserUseAgent: An agent that can use a web browser to perform actions using Se
 execute CLI commands, and make API calls.
 """
 import os
+import sys
 import subprocess
 import time
 from datetime import datetime
@@ -105,7 +106,7 @@ class BrowserUseAgent:
             driver = webdriver.Chrome(options=self.options)
             driver.implicitly_wait(10) # Default wait for elements
             return driver
-        except WebDriverException as e:
+        except (WebDriverException, WebDriverSetupError) as e:
             print(f"Error initializing Chrome driver directly: {e}")
             print("Trying to initialize WebDriver using selenium-manager (built-in fallback)...")
             # Second attempt: rely on selenium-manager (often the default behavior now)
@@ -315,7 +316,7 @@ class BrowserUseAgent:
         """
         print(f"[CLI] Running command: {command}")
         try:
-            if os.name == 'posix': # More specific check for macOS could be sys.platform == 'darwin'
+            if sys.platform == 'darwin':
                 try:
                     # Attempt to open in new terminal for visibility (macOS specific)
                     escaped_command = command.replace('"', '\\"')
@@ -343,13 +344,18 @@ class BrowserUseAgent:
                 print(f"[CLI] STDERR:\n{result.stderr}")
 
             if result.returncode != 0:
+                # Use a single-line error message so regex matching in tests
+                # works regardless of newline handling.
                 raise CLICommandError(
-                    f"Command '{command}' failed with return code {result.returncode}\n"
-                    f"Stderr: {result.stderr}"
+                    f"Command '{command}' failed with return code {result.returncode}: {result.stderr}"
                 )
             return result.stdout, result.stderr
         except subprocess.TimeoutExpired as e:
             raise CLICommandError(f"Command '{command}' timed out.") from e
+        except CLICommandError:
+            # Re-raise CLICommandError without modification so calling tests can
+            # inspect the original message.
+            raise
         except Exception as e: # Catch other errors like issues with subprocess.run itself
             raise CLICommandError(f"Error running command '{command}': {e}") from e
 
