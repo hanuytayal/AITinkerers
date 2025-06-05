@@ -49,7 +49,7 @@
    cp env.example .env
    ```
    Then edit the `.env` file to add your API key.
-   
+
    Additionally, for security, especially if running in any shared or non-development environment, set the `FLASK_SECRET_KEY`:
    ```bash
    # On macOS/Linux
@@ -132,7 +132,7 @@ You should see the Log Analysis Agent interface where you can upload log files f
 
 - **WSGI Server**: The Flask development server (`python run.py` or `flask run`) is **not suitable for production use**. For deployment, use a production-grade WSGI server like Gunicorn or Waitress. Example with Gunicorn:
   ```bash
-  gunicorn --workers 4 --bind 0.0.0.0:5000 run:app 
+  gunicorn --workers 4 --bind 0.0.0.0:5000 run:app
   ```
   *(Adjust `run:app` if your Flask application instance is named differently or located in a different file within your `run.py` or `app.py`)*.
 

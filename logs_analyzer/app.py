@@ -13,7 +13,7 @@ from flask import Flask, Response, jsonify, redirect, render_template, request, 
 from werkzeug.utils import secure_filename
 
 # Assuming these services are structured correctly for import
-from services.agent import LogAnalysisAgent 
+from services.agent import LogAnalysisAgent
 from services.ticket_service import TicketService
 
 # --- Configuration Constants ---
@@ -110,7 +110,7 @@ def index():
     processed_steps = []
     for step in steps:
         # Create a copy to avoid modifying the original dict in _current_analysis_state
-        processed_step = step.copy() 
+        processed_step = step.copy()
         if processed_step.get("type") == "summary":
             processed_step["content_html"] = markdown.markdown(processed_step.get("content", ""))
         else:
@@ -171,9 +171,9 @@ def upload_file_route():
     if 'file' not in request.files:
         # flash("No file part in the request.")
         return redirect(request.url) # Or url_for('index')
-    
+
     uploaded_filename = _handle_file_upload(request.files['file'])
-    
+
     if uploaded_filename:
         with _analysis_state_lock:
             _current_analysis_state['current_file'] = uploaded_filename
@@ -182,7 +182,7 @@ def upload_file_route():
             _current_analysis_state['reasoning_steps'] = []
             _current_analysis_state['analysis_in_progress'] = False # Reset before new analysis
             _current_analysis_state['error_message'] = None
-            
+
             # Clear the streaming queue for new analysis
             while not _reasoning_stream_queue.empty():
                 try:
@@ -282,7 +282,7 @@ def _perform_log_analysis(filepath: str, filename: str) -> Dict[str, Any]:
                 # The current `LogAnalysisAgent`'s `_execute_tool_call_from_api` for `create_ticket`
                 # calls `self.ticket_service.create_ticket(tool_args)` and appends `tool_args` to `self.identified_issues`.
                 # So, `identified_issues` from the agent are the "tickets" for our purpose here.
-                
+
                 # Let's assume `ticket_service.create_ticket` was called by the agent's tool
                 # and `identified_issues` contains the arguments used for those calls.
                 # We might want to re-fetch ticket details if create_ticket returns an ID.
@@ -349,7 +349,7 @@ def _run_resolution_agent_subprocess(ticket_context: Dict[str, Any]):
         "content": f"Starting Resolution Agent for ticket context: {ticket_context.get('summary', 'N/A')} (ID: {ticket_id_for_log})...",
         "type": "resolution_agent"
     })
-    
+
     try:
         # Using sys.executable ensures using the same Python interpreter.
         # "-u" for unbuffered output from the subprocess.
@@ -431,13 +431,13 @@ def analyze_file_route(filename: str):
 
         # Basic check to prevent re-analysis if results (tickets) already exist for this file
         # More robust would be to check if analysis was *completed* successfully.
-        if (_current_analysis_state['current_file'] == filename and 
+        if (_current_analysis_state['current_file'] == filename and
             _current_analysis_state['tickets_created']): # Or a 'completed' flag
             app.logger.info(f"Analysis for {filename} already completed with tickets. Displaying existing results.")
             state_snapshot = _current_analysis_state.copy()
             state_snapshot['reasoning_steps'] = render_reasoning_steps_with_html(state_snapshot['reasoning_steps'])
             return render_template('results.html', state=state_snapshot, analysis_running_now=False)
-        
+
         # Reset parts of state for a new analysis run if it's a different file or no tickets yet
         if _current_analysis_state['current_file'] != filename or not _current_analysis_state['tickets_created']:
             _current_analysis_state['current_file'] = filename
@@ -449,7 +449,7 @@ def analyze_file_route(filename: str):
             while not _reasoning_stream_queue.empty():
                 try: _reasoning_stream_queue.get_nowait()
                 except queue.Empty: break
-        
+
         _current_analysis_state['analysis_in_progress'] = True
     # End of lock critical section
 
@@ -467,7 +467,7 @@ def analyze_file_route(filename: str):
         app.logger.info(f"Analysis thread started for {f_name}")
         # This call will use the agent's reasoning callback to put steps into _reasoning_stream_queue
         analysis_output = _perform_log_analysis(f_path, f_name)
-        
+
         # Update global state with final results from the thread
         with _analysis_state_lock:
             _current_analysis_state['issues_found'] = analysis_output.get('issues_found', [])

@@ -85,8 +85,8 @@ For development and basic local running instructions, see `logs_analyzer/RUNNING
 1.  Navigate to the `frontend/on-call` directory.
 2.  Install dependencies:
     ```bash
-    npm install 
-    ``` 
+    npm install
+    ```
     *(Note: `--legacy-peer-deps` might be needed due to `react-beautiful-dnd` compatibility with React 19, as identified in reviews).*
 3.  Build for production:
     ```bash

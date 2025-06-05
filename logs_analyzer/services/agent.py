@@ -4,13 +4,13 @@ from datetime import datetime
 import time # Keep for mock analysis
 import json
 # Remove unused re, Optional, Callable, List, Dict, Any for now, will re-add as needed by full refactoring
-from typing import Optional, Callable, List, Dict, Any 
+from typing import Optional, Callable, List, Dict, Any
 
 # --- Constants ---
 # Prompt from the original analyze_logs method; this will be used by the refactored version
 LOG_ANALYSIS_PROMPT_TEMPLATE_FROM_ANALYZE_LOGS = """Analyze these system logs to identify critical issues that require attention from oncall engineers.
 
-PROBLEM: 
+PROBLEM:
 I need to detect FATAL severity issues that occurred at least 5 times in these logs and create tickets for them.
 
 CONTEXT:
@@ -38,7 +38,7 @@ Here are the logs to analyze:
 # Default model configurations (can be overridden in __init__)
 DEFAULT_MODEL_NAME = "o4-mini" # From original analyze_logs
 # Standard chat model often used with tools, if o4-mini is specialized
-CHAT_COMPLETIONS_MODEL = "gpt-4-1106-preview" 
+CHAT_COMPLETIONS_MODEL = "gpt-4-1106-preview"
 DEFAULT_TEMPERATURE = 0.2 # A common default
 DEFAULT_MAX_TOKENS = 2000 # A common default
 
@@ -57,7 +57,7 @@ class LogAnalysisAgent:
     streaming responses (if applicable with chosen API), reasoning steps,
     and tool calls (like creating tickets).
     """
-    def __init__(self, openai_api_key: Optional[str] = None, 
+    def __init__(self, openai_api_key: Optional[str] = None,
                  ticket_service: Optional[Any] = None, # Define a base class for TicketService if possible
                  model_name: str = CHAT_COMPLETIONS_MODEL): # Default to standard chat model
         """
@@ -143,7 +143,7 @@ class LogAnalysisAgent:
             if existing_step["content"] == step and existing_step["type"] == step_type:
                 # print(f"[DEBUG] Duplicate reasoning step skipped: {step}")
                 return # Avoid returning self.reasoning_steps from here
-        
+
         reasoning_step_data = {
             "timestamp": datetime.now().isoformat(),
             "content": step,
@@ -170,7 +170,7 @@ class LogAnalysisAgent:
         message: Dict[str, Any] = {"role": role}
         if content is not None:
             message["content"] = content
-        
+
         if tool_calls:
             # Ensure tool_calls are in the correct dictionary format if they are Pydantic objects
             processed_tool_calls = []
@@ -196,7 +196,7 @@ class LogAnalysisAgent:
             message["tool_call_id"] = tool_call_id
         if name: # For role 'tool', this is the function name
             message["name"] = name
-        
+
         # Final check for 'tool' role: must have tool_call_id and content
         if role == "tool" and ("tool_call_id" not in message or "content" not in message):
             raise ValueError(f"Tool message is missing tool_call_id or content: {message}")
@@ -310,14 +310,14 @@ class LogAnalysisAgent:
     def analyze_logs(self, logs_df, stream_callback: Optional[Callable[[Dict], None]] = None):
         """
         Analyze log data using OpenAI to identify issues
-        
+
         Args:
             logs_df (pandas.DataFrame): DataFrame containing log data.
                                         Note: Pylint flagged pandas as unused in the original agent.py.
                                         If logs_df is indeed a DataFrame, pandas import is needed.
                                         For now, assuming logs_text is passed directly or generated before this call.
             stream_callback (Optional[Callable[[Dict[str, Any]], None]]): Callback for streaming steps.
-            
+
         Returns:
             List[Dict[str, Any]]: List of identified issues.
         """
@@ -327,26 +327,26 @@ class LogAnalysisAgent:
         logs_text_content = logs_df # This needs to be string content.
 
         self.stream_callback = stream_callback
-        
+
         if not self.api_key or not self.client: # If API key was missing, client might be None or unusable
             self.add_reasoning_step("API key not configured. Using mock analysis.", step_type="error")
             # Assuming logs_text_content can be passed to _mock_analysis or _mock_analysis is adapted
             # For this refactoring, I'll assume _mock_analysis can work without a DataFrame.
             # If it needs a DataFrame, the caller of analyze_logs must handle that.
             return self._mock_analysis(logs_text_content) # Pass the content
-        
+
         try:
             self.reasoning_steps = []
             self.identified_issues = []
             self.add_reasoning_step("Starting log analysis process")
-            
+
             # The original code converted logs_df.to_string(index=False)
             # Assuming logs_text_content is already this string.
             # self.add_reasoning_step(f"Analyzing {len(logs_df)} log entries") # This needs len of lines or structured data
             self.add_reasoning_step(f"Analyzing log text of length {len(logs_text_content)} characters.")
 
             create_ticket_tool = self._get_create_ticket_tool_definition()
-            
+
             prompt = LOG_ANALYSIS_PROMPT_TEMPLATE.format(logs_text=logs_text_content)
             
             self.add_reasoning_step("Sending logs to OpenAI for analysis...")
