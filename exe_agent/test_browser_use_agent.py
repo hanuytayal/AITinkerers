@@ -2,6 +2,7 @@
 Unit tests for the BrowserUseAgent class.
 """
 import os
+import sys
 import unittest
 from unittest.mock import patch, MagicMock, mock_open
 import requests # Import requests
@@ -208,7 +209,7 @@ class TestBrowserUseAgent(unittest.TestCase):
         mock_result = MagicMock(stdout="file1\nfile2", stderr="", returncode=0)
 
         # If osascript is expected (macOS), handle its mock call too
-        if os.name == 'posix': # sys.platform == 'darwin' for macOS specifically
+        if sys.platform == 'darwin':
             mock_subprocess_run.side_effect = [MagicMock(), mock_result] # First for osascript, second for actual
         else:
             mock_subprocess_run.return_value = mock_result
@@ -238,7 +239,7 @@ class TestBrowserUseAgent(unittest.TestCase):
         command = "badcommand"
         # Mock for the background command capture part
         mock_result = MagicMock(stdout="", stderr="error message", returncode=1)
-        if os.name == 'posix': # sys.platform == 'darwin'
+        if sys.platform == 'darwin':
             mock_subprocess_run.side_effect = [MagicMock(), mock_result]
         else:
             mock_subprocess_run.return_value = mock_result
